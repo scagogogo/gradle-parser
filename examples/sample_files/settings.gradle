@@ -1,0 +1,20 @@
+// 示例Gradle设置文件
+
+rootProject.name = 'gradle-demo'
+
+// 包含子项目
+include ':app'
+include ':common'
+include ':data'
+
+// 项目版本控制
+enableFeaturePreview('VERSION_CATALOGS')
+
+// 自定义配置
+ext {
+    appName = "GradleDemo"
+    appVersion = "1.0.0"
+    minSdkVersion = 21
+    targetSdkVersion = 31
+    compileSdkVersion = 31
+} 

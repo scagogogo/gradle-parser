@@ -1,0 +1,25 @@
+// common模块的Gradle构建文件
+
+plugins {
+    id 'java-library'
+}
+
+group = 'com.example.common'
+version = rootProject.ext.appVersion
+description = '通用工具库模块'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 工具库依赖
+    api 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.google.guava:guava:31.1-jre'
+    
+    // 测试依赖
+    testImplementation 'junit:junit:4.13.2'
+} 
