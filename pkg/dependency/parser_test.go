@@ -1,6 +1,8 @@
 package dependency
 
 import (
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -251,6 +253,32 @@ func TestParseDependencyString(t *testing.T) {
 			success: true,
 		},
 		{
+			name:   "GA format (no version)",
+			depStr: "org.springframework.boot:spring-boot-starter-web",
+			scope:  "implementation",
+			want: &model.Dependency{
+				Group:   "org.springframework.boot",
+				Name:    "spring-boot-starter-web",
+				Version: "",
+				Scope:   "implementation",
+				Raw:     "org.springframework.boot:spring-boot-starter-web",
+			},
+			success: true,
+		},
+		{
+			name:   "quoted GA format (no version)",
+			depStr: "'org.springframework.boot:spring-boot-starter-data-jpa'",
+			scope:  "testImplementation",
+			want: &model.Dependency{
+				Group:   "org.springframework.boot",
+				Name:    "spring-boot-starter-data-jpa",
+				Version: "",
+				Scope:   "testImplementation",
+				Raw:     "'org.springframework.boot:spring-boot-starter-data-jpa'",
+			},
+			success: true,
+		},
+		{
 			name:    "invalid format",
 			depStr:  "invalid-dependency-format",
 			scope:   "implementation",
@@ -317,6 +345,89 @@ func TestExtractDependenciesFromText(t *testing.T) {
 	}
 	if !foundProject {
 		t.Error("ExtractDependenciesFromText() did not find project dependency")
+	}
+}
+
+func TestExtractDependenciesFromText2(t *testing.T) {
+	parser := NewDependencyParser()
+
+	testFilePath := filepath.Join("..", "..", "examples", "sample_files", "build.gradle")
+	text, err := os.ReadFile(testFilePath)
+	if err != nil {
+		t.Fatalf("could not parse test file: %s", testFilePath)
+	}
+
+	deps := parser.ExtractDependenciesFromText(string(text))
+	if len(deps) < 3 {
+		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want at least 3", len(deps))
+	}
+
+	// Verify extraction of specific dependency types
+	var foundSpringBootStarterWeb bool
+	var foundSpringBootStarterDataJpa bool
+	var foundMysqlConnectorJava bool
+	var foundCommonsLang3 bool
+	var foundGuava bool
+	var foundSpringBootStarterTest bool
+	var foundJunitJupiter bool
+	var foundJunitJupiterEngine bool
+	var foundProject bool
+	for _, dep := range deps {
+		if dep.Group == "org.springframework.boot" && dep.Name == "spring-boot-starter-web" {
+			foundSpringBootStarterWeb = true
+		}
+		if dep.Group == "org.springframework.boot" && dep.Name == "spring-boot-starter-data-jpa" {
+			foundSpringBootStarterDataJpa = true
+		}
+		if dep.Group == "mysql" && dep.Name == "mysql-connector-java" && dep.Version == "8.0.29" {
+			foundMysqlConnectorJava = true
+		}
+		if dep.Group == "org.apache.commons" && dep.Name == "commons-lang3" && dep.Version == "3.12.0" {
+			foundCommonsLang3 = true
+		}
+		if dep.Group == "com.google.guava" && dep.Name == "guava" && dep.Version == "31.1-jre" {
+			foundGuava = true
+		}
+		if dep.Group == "org.springframework.boot" && dep.Name == "spring-boot-starter-test" {
+			foundSpringBootStarterTest = true
+		}
+		if dep.Group == "org.junit.jupiter" && dep.Name == "junit-jupiter-api" && dep.Version == "5.8.2" {
+			foundJunitJupiter = true
+		}
+		if dep.Group == "org.junit.jupiter" && dep.Name == "junit-jupiter-engine" && dep.Version == "5.8.2" {
+			foundJunitJupiterEngine = true
+		}
+		if dep.Name == "common" && dep.Raw == "project(':common')" {
+			foundProject = true
+		}
+	}
+
+	if !foundSpringBootStarterWeb {
+		t.Error("ExtractDependenciesFromText() did not find spring-boot-starter-web dependency")
+	}
+	if !foundSpringBootStarterDataJpa {
+		t.Error("ExtractDependenciesFromText() did not find spring-boot-starter-data-jpa dependency")
+	}
+	if !foundMysqlConnectorJava {
+		t.Error("ExtractDependenciesFromText() did not find mysql-connector-java dependency")
+	}
+	if !foundCommonsLang3 {
+		t.Error("ExtractDependenciesFromText() did not find commons-lang3 dependency")
+	}
+	if !foundGuava {
+		t.Error("ExtractDependenciesFromText() did not find guava dependency")
+	}
+	if !foundSpringBootStarterTest {
+		t.Error("ExtractDependenciesFromText() did not find spring-boot-starter-test dependency")
+	}
+	if !foundJunitJupiter {
+		t.Error("ExtractDependenciesFromText() did not find junit-jupiter-api dependency")
+	}
+	if !foundJunitJupiterEngine {
+		t.Error("ExtractDependenciesFromText() did not find junit-jupiter-engine dependency")
+	}
+	if !foundProject {
+		t.Error("ExtractDependenciesFromText() did not find common dependency")
 	}
 }
 

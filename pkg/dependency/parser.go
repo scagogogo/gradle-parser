@@ -15,6 +15,10 @@ var (
 	// 例如: org.springframework:spring-core:5.3.10
 	gavRegex = regexp.MustCompile(`^(['"]?)([^:'"]+):([^:'"]+):([^'"]+)(['"]?)$`)
 
+	// 格式: group:name (没有版本号)
+	// 例如: org.springframework.boot:spring-boot-starter-web
+	gaRegex = regexp.MustCompile(`^(['"]?)([^:'"]+):([^:'"]+)(['"]?)$`)
+
 	// 格式: group.name:name:version
 	// 例如: org.springframework.boot:spring-boot-starter:2.5.5
 	dotNameRegex = regexp.MustCompile(`^(['"]?)([^:'"]+)\.([^:'"]+):([^:'"]+):([^'"]+)(['"]?)$`)
@@ -130,6 +134,17 @@ func (dp *DependencyParser) parseDependencyString(depStr string, scope string) (
 		}, true
 	}
 
+	// GA格式: group:name (没有版本号)
+	if match := gaRegex.FindStringSubmatch(depStr); len(match) > 3 {
+		return &model.Dependency{
+			Group:   match[2],
+			Name:    match[3],
+			Version: "", // 版本号为空，可能由dependency-management管理
+			Scope:   scope,
+			Raw:     depStr,
+		}, true
+	}
+
 	// 带命名空间的格式: group.name:name:version
 	if match := dotNameRegex.FindStringSubmatch(depStr); len(match) > 5 {
 		group := match[2] + "." + match[3]
@@ -168,6 +183,7 @@ func (dp *DependencyParser) ExtractDependenciesFromText(text string) []*model.De
 		// 尝试解析为依赖项
 		for _, pattern := range []string{
 			`['"]([^'"]+):([^'"]+):([^'"]+)['"]`,           // "group:name:version"
+			`['"]([^'"]+):([^'"]+)['"]`,                    // "group:name" (没有版本号)
 			`['"]([^'"]+)\.([^'"]+):([^'"]+):([^'"]+)['"]`, // "group.name:name:version"
 			`project\(['"]:(.*)['"]\)`,                     // project(":name")
 		} {
