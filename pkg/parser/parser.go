@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/scagogogo/gradle-parser/pkg/config"
+	"github.com/scagogogo/gradle-parser/pkg/dependency"
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
 
@@ -142,8 +144,25 @@ func (p *GradleParser) Parse(content string) (*model.ParseResult, error) {
 
 		// 解析行内容
 		if err := p.parseLine(trimmedLine, lineNumber, project); err != nil {
-			p.errors = append(p.errors, fmt.Errorf("行 %d: %w", lineNumber, err))
+			// 不把解析错误当作致命错误，只记录警告
+			p.warnings = append(p.warnings, fmt.Sprintf("行 %d: %v", lineNumber, err))
 		}
+	}
+
+	// 使用专门的解析器来提取依赖、插件和仓库
+	if p.parseDependencies {
+		depParser := dependency.NewDependencyParser()
+		project.Dependencies = depParser.ExtractDependenciesFromText(content)
+	}
+
+	if p.parsePlugins {
+		pluginParser := config.NewPluginParser()
+		project.Plugins = pluginParser.ExtractPluginsFromText(content)
+	}
+
+	if p.parseRepositories {
+		repoParser := config.NewRepositoryParser()
+		project.Repositories = repoParser.ExtractRepositoriesFromText(content)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -167,12 +186,39 @@ func (p *GradleParser) Parse(content string) (*model.ParseResult, error) {
 
 // parseLine 解析单行内容
 func (p *GradleParser) parseLine(line string, lineNumber int, project *model.Project) error {
-	// TODO: 实现行解析逻辑
-	// 这里将根据不同的语法规则来解析Gradle配置
+	line = strings.TrimSpace(line)
 
-	// 这是一个占位函数，实际实现会更复杂
-	// 需要处理各种语法结构，如块、赋值、方法调用等
+	// 跳过空行和注释
+	if line == "" || strings.HasPrefix(line, "//") || strings.HasPrefix(line, "/*") {
+		return nil
+	}
 
+	// 解析项目基本属性
+	if err := p.parseProjectProperty(line, project); err == nil {
+		return nil
+	}
+
+	// 解析插件块
+	if strings.HasPrefix(line, "plugins") {
+		return p.parsePluginsBlock(line, project)
+	}
+
+	// 解析依赖块
+	if strings.HasPrefix(line, "dependencies") {
+		return p.parseDependenciesBlock(line, project)
+	}
+
+	// 解析仓库块
+	if strings.HasPrefix(line, "repositories") {
+		return p.parseRepositoriesBlock(line, project)
+	}
+
+	// 解析任务定义
+	if strings.HasPrefix(line, "task ") || strings.Contains(line, "task(") {
+		return p.parseTaskDefinition(line, project)
+	}
+
+	// 其他配置项暂时忽略，不报错
 	return nil
 }
 
@@ -210,4 +256,182 @@ func (p *GradleParser) WithParseRepositories(parse bool) *GradleParser {
 func (p *GradleParser) WithParseTasks(parse bool) *GradleParser {
 	p.parseTasks = parse
 	return p
+}
+
+// parseProjectProperty 解析项目基本属性
+func (p *GradleParser) parseProjectProperty(line string, project *model.Project) error {
+	// 匹配 key = value 格式
+	if strings.Contains(line, "=") {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid assignment format")
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		// 移除引号
+		value = strings.Trim(value, `"'`)
+
+		switch key {
+		case "group":
+			project.Group = value
+		case "version":
+			project.Version = value
+		case "description":
+			project.Description = value
+		case "sourceCompatibility":
+			project.SourceCompatibility = value
+		case "targetCompatibility":
+			project.TargetCompatibility = value
+		default:
+			// 其他属性存储在Properties中
+			if project.Properties == nil {
+				project.Properties = make(map[string]string)
+			}
+			project.Properties[key] = value
+		}
+		return nil
+	}
+
+	return fmt.Errorf("not a property assignment")
+}
+
+// parsePluginsBlock 解析插件块
+func (p *GradleParser) parsePluginsBlock(line string, project *model.Project) error {
+	if !p.parsePlugins {
+		return nil
+	}
+
+	// 简单的插件解析 - 这里可以扩展为更复杂的块解析
+	// 目前只处理单行插件声明
+	if strings.Contains(line, "id") {
+		// 匹配 id 'plugin-name' version 'version'
+		// 或 id("plugin-name") version "version"
+		plugin := &model.Plugin{Apply: true}
+
+		// 提取插件ID
+		if idMatch := extractQuotedValue(line, "id"); idMatch != "" {
+			plugin.ID = idMatch
+		}
+
+		// 提取版本
+		if versionMatch := extractQuotedValue(line, "version"); versionMatch != "" {
+			plugin.Version = versionMatch
+		}
+
+		if plugin.ID != "" {
+			project.Plugins = append(project.Plugins, plugin)
+		}
+	}
+
+	return nil
+}
+
+// parseDependenciesBlock 解析依赖块
+func (p *GradleParser) parseDependenciesBlock(line string, project *model.Project) error {
+	if !p.parseDependencies {
+		return nil
+	}
+
+	// 依赖解析已经在dependency包中实现，这里暂时跳过
+	// 实际应用中可以在这里调用dependency.ExtractDependenciesFromText
+	return nil
+}
+
+// parseRepositoriesBlock 解析仓库块
+func (p *GradleParser) parseRepositoriesBlock(line string, project *model.Project) error {
+	if !p.parseRepositories {
+		return nil
+	}
+
+	// 简单的仓库解析
+	if strings.Contains(line, "mavenCentral") {
+		repo := &model.Repository{
+			Name: "mavenCentral",
+			Type: "maven",
+			URL:  "https://repo1.maven.org/maven2/",
+		}
+		project.Repositories = append(project.Repositories, repo)
+	} else if strings.Contains(line, "google") {
+		repo := &model.Repository{
+			Name: "google",
+			Type: "maven",
+			URL:  "https://dl.google.com/dl/android/maven2/",
+		}
+		project.Repositories = append(project.Repositories, repo)
+	} else if strings.Contains(line, "maven") && strings.Contains(line, "url") {
+		// 解析自定义maven仓库
+		repo := &model.Repository{
+			Name: "custom",
+			Type: "maven",
+		}
+		if url := extractQuotedValue(line, "url"); url != "" {
+			repo.URL = url
+		}
+		project.Repositories = append(project.Repositories, repo)
+	}
+
+	return nil
+}
+
+// parseTaskDefinition 解析任务定义
+func (p *GradleParser) parseTaskDefinition(line string, project *model.Project) error {
+	if !p.parseTasks {
+		return nil
+	}
+
+	// 简单的任务解析
+	task := &model.Task{}
+
+	// 提取任务名称
+	if strings.HasPrefix(line, "task ") {
+		parts := strings.Fields(line)
+		if len(parts) > 1 {
+			task.Name = parts[1]
+		}
+	}
+
+	if task.Name != "" {
+		project.Tasks = append(project.Tasks, task)
+	}
+
+	return nil
+}
+
+// extractQuotedValue 从行中提取引号包围的值
+func extractQuotedValue(line, keyword string) string {
+	// 查找关键字位置
+	keywordIndex := strings.Index(line, keyword)
+	if keywordIndex == -1 {
+		return ""
+	}
+
+	// 从关键字后开始查找引号
+	searchStart := keywordIndex + len(keyword)
+	remaining := line[searchStart:]
+
+	// 查找第一个引号
+	var quote rune
+	var start int = -1
+	for i, r := range remaining {
+		if r == '"' || r == '\'' {
+			quote = r
+			start = i + 1
+			break
+		}
+	}
+
+	if start == -1 {
+		return ""
+	}
+
+	// 查找匹配的结束引号
+	for i := start; i < len(remaining); i++ {
+		if rune(remaining[i]) == quote {
+			return remaining[start:i]
+		}
+	}
+
+	return ""
 }

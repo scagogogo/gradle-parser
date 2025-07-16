@@ -16,6 +16,9 @@ A Go library for parsing Gradle build files, extracting dependencies, plugins, r
 - 📦 解析和分组依赖信息，支持作用域分类
 - 🔌 提取插件配置，检测项目类型（Android/Kotlin/Spring Boot）
 - 📝 解析仓库配置，包括自定义仓库和认证信息
+- ✏️ **结构化编辑**: 精确修改依赖版本、插件版本、项目属性
+- 🎯 **最小diff**: 保持原始格式，只修改必要部分
+- 📍 **源码位置追踪**: 记录每个元素在源文件中的精确位置
 - 🌐 支持Groovy DSL和Kotlin DSL语法
 - 🛠️ 可自定义解析器配置，满足不同需求
 - 🔄 支持解析整个多模块Gradle项目
@@ -122,6 +125,44 @@ parser := api.NewParser(options)
 result, err := parser.ParseFile("build.gradle")
 ```
 
+### 结构化编辑 | Structured Editing
+
+```go
+// 更新依赖版本（便捷方法）
+// Update dependency version (convenient method)
+newText, err := api.UpdateDependencyVersion("build.gradle", "mysql", "mysql-connector-java", "8.0.31")
+
+// 更新插件版本
+// Update plugin version
+newText, err := api.UpdatePluginVersion("build.gradle", "org.springframework.boot", "2.7.2")
+
+// 批量修改（高级用法）
+// Batch modifications (advanced usage)
+editor, err := api.CreateGradleEditor("build.gradle")
+if err != nil {
+    log.Fatal(err)
+}
+
+// 执行多个修改
+// Perform multiple modifications
+editor.UpdateProperty("version", "1.0.0")
+editor.UpdatePluginVersion("org.springframework.boot", "2.7.2")
+editor.UpdateDependencyVersion("com.google.guava", "guava", "31.1-jre")
+editor.AddDependency("org.apache.commons", "commons-text", "1.9", "implementation")
+
+// 应用所有修改
+// Apply all modifications
+serializer := editor.NewGradleSerializer(editor.GetSourceMappedProject().OriginalText)
+finalText, err := serializer.ApplyModifications(editor.GetModifications())
+
+// 生成修改diff
+// Generate modification diff
+diffLines := serializer.GenerateDiff(editor.GetModifications())
+for _, diffLine := range diffLines {
+    fmt.Println(diffLine.String())
+}
+```
+
 ## 项目结构 | Project Structure
 
 整个项目采用模块化设计，代码组织如下：
@@ -133,6 +174,7 @@ The project uses a modular design with the following code organization:
 │   ├── api/              # 主API接口 | Main API
 │   ├── config/           # 配置解析相关 | Configuration parsing
 │   ├── dependency/       # 依赖解析相关 | Dependency parsing
+│   ├── editor/           # 结构化编辑器 | Structured editor
 │   ├── model/            # 数据模型定义 | Data models
 │   ├── parser/           # 解析器核心 | Parser core
 │   └── util/             # 工具函数 | Utility functions
@@ -142,6 +184,7 @@ The project uses a modular design with the following code organization:
     ├── 03_plugins/       # 插件提取示例 | Plugin extraction
     ├── 04_repositories/  # 仓库提取示例 | Repository extraction
     ├── 05_complete/      # 完整功能示例 | Complete features
+    ├── 06_editor/        # 结构化编辑示例 | Structured editing
     └── sample_files/     # 示例Gradle文件 | Sample Gradle files
 ```
 

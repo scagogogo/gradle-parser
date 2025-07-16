@@ -7,6 +7,7 @@ import (
 
 	"github.com/scagogogo/gradle-parser/pkg/config"
 	"github.com/scagogogo/gradle-parser/pkg/dependency"
+	"github.com/scagogogo/gradle-parser/pkg/editor"
 	"github.com/scagogogo/gradle-parser/pkg/model"
 	"github.com/scagogogo/gradle-parser/pkg/parser"
 )
@@ -58,46 +59,22 @@ func GetDependencies(filePath string) ([]*model.Dependency, error) {
 
 // GetPlugins 从文件提取插件信息
 func GetPlugins(filePath string) ([]*model.Plugin, error) {
-	// 尝试打开文件
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// 读取整个文件内容
-	content, err := io.ReadAll(file)
+	result, err := ParseFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	// 创建插件解析器
-	pluginParser := config.NewPluginParser()
-
-	// 直接从文本提取插件
-	return pluginParser.ExtractPluginsFromText(string(content)), nil
+	return result.Project.Plugins, nil
 }
 
 // GetRepositories 从文件提取仓库信息
 func GetRepositories(filePath string) ([]*model.Repository, error) {
-	// 尝试打开文件
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// 读取整个文件内容
-	content, err := io.ReadAll(file)
+	result, err := ParseFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	// 创建仓库解析器
-	repoParser := config.NewRepositoryParser()
-
-	// 直接从文本提取仓库
-	return repoParser.ExtractRepositoriesFromText(string(content)), nil
+	return result.Project.Repositories, nil
 }
 
 // DependenciesByScope 按范围对依赖进行分组
@@ -160,4 +137,81 @@ func NewParser(options *Options) parser.Parser {
 	}
 
 	return p
+}
+
+// ParseFileWithSourceMapping 解析文件并返回带源码位置信息的结果
+func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult, error) {
+	// 读取文件内容
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	// 使用位置感知解析器
+	sourceAwareParser := parser.NewSourceAwareParser()
+	result, err := sourceAwareParser.ParseWithSourceMapping(string(content))
+	if err != nil {
+		return nil, err
+	}
+
+	// 设置文件路径
+	if result.SourceMappedProject != nil {
+		result.SourceMappedProject.FilePath = filePath
+	}
+
+	return result, nil
+}
+
+// CreateGradleEditor 创建Gradle编辑器
+func CreateGradleEditor(filePath string) (*editor.GradleEditor, error) {
+	// 解析文件获取源码位置信息
+	result, err := ParseFileWithSourceMapping(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建编辑器
+	return editor.NewGradleEditor(result.SourceMappedProject), nil
+}
+
+// UpdateDependencyVersion 更新依赖版本（便捷方法）
+func UpdateDependencyVersion(filePath, group, name, newVersion string) (string, error) {
+	// 创建编辑器
+	gradleEditor, err := CreateGradleEditor(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	// 更新版本
+	if err := gradleEditor.UpdateDependencyVersion(group, name, newVersion); err != nil {
+		return "", err
+	}
+
+	// 应用修改
+	serializer := editor.NewGradleSerializer(gradleEditor.GetSourceMappedProject().OriginalText)
+	return serializer.ApplyModifications(gradleEditor.GetModifications())
+}
+
+// UpdatePluginVersion 更新插件版本（便捷方法）
+func UpdatePluginVersion(filePath, pluginId, newVersion string) (string, error) {
+	// 创建编辑器
+	gradleEditor, err := CreateGradleEditor(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	// 更新版本
+	if err := gradleEditor.UpdatePluginVersion(pluginId, newVersion); err != nil {
+		return "", err
+	}
+
+	// 应用修改
+	serializer := editor.NewGradleSerializer(gradleEditor.GetSourceMappedProject().OriginalText)
+	return serializer.ApplyModifications(gradleEditor.GetModifications())
 }

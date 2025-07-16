@@ -11,10 +11,15 @@
 - [x] 主API入口
 - [x] 示例代码
 - [x] 命令行工具
+- [x] **实现核心parseLine方法** - 支持基本的Gradle语法解析
+- [x] **完善API接口** - 实现所有README中承诺的API方法
+- [x] **项目类型检测** - IsAndroidProject、IsKotlinProject、IsSpringBootProject
+- [x] **GA格式依赖支持** - 支持没有版本号的依赖项解析
+- [x] **Github Actions CI配置** - 已存在并正常工作
 
 ## 待完成功能
 
-- [ ] 完善行解析逻辑实现（`parseLine`方法）
+- [x] ~~完善行解析逻辑实现（`parseLine`方法）~~ ✅ 已完成
 - [ ] 支持更复杂的Gradle DSL语法解析
 - [ ] 添加更多的测试用例
 - [ ] 改进Kotlin DSL解析
@@ -25,15 +30,17 @@
 - [ ] 添加单元测试覆盖率
 - [ ] 支持解析settings.gradle文件
 - [ ] 改进错误和警告信息处理
-- [ ] 添加Github Actions CI配置
+- [x] ~~添加Github Actions CI配置~~ ✅ 已存在
 
 ## 已知问题
 
-- 目前的行解析实现是空白的，需要完善
+- ~~目前的行解析实现是空白的，需要完善~~ ✅ 已修复
 - 对于复杂的Gradle语法可能无法正确解析
 - 不支持处理变量和表达式
 - 不支持解析buildSrc目录中的自定义插件
 - 对于自定义扩展配置支持有限
+- 依赖解析存在重复项问题（需要优化）
+- 依赖范围解析不够准确（需要改进）
 
 ## 后续迭代计划
 
