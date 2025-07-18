@@ -171,6 +171,7 @@ func (dp *DependencyParser) ExtractDependenciesFromText(text string) []*model.De
 
 	for _, line := range lines {
 		trimmedLine := strings.TrimSpace(line)
+		//fmt.Println("trimmedLine: ", trimmedLine)
 
 		// 检查是否是依赖范围声明行
 		for _, scope := range commonScopes {
@@ -193,6 +194,12 @@ func (dp *DependencyParser) ExtractDependenciesFromText(text string) []*model.De
 			for _, match := range matches {
 				if len(match) > 0 {
 					rawDep := match[0]
+					// filter out some unwanted deps
+					if strings.Contains(rawDep, "https://github.com") ||
+						strings.Contains(rawDep, "https://central.sonatype.com/repository/maven-snapshots") ||
+						strings.Contains(rawDep, "https://ossrh-staging-api.central.sonatype.com/service/local/") {
+						continue
+					}
 					if dep, ok := dp.parseDependencyString(rawDep, currentScope); ok {
 						deps = append(deps, dep)
 					}
