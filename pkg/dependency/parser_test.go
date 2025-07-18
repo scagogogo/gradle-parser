@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/scagogogo/gradle-parser/pkg/model"
@@ -428,6 +429,82 @@ func TestExtractDependenciesFromText2(t *testing.T) {
 	}
 	if !foundProject {
 		t.Error("ExtractDependenciesFromText() did not find common dependency")
+	}
+}
+
+func TestExtractDependenciesFromTextURLs(t *testing.T) {
+	parser := NewDependencyParser()
+
+	// Test with empty text
+	deps := parser.ExtractDependenciesFromText("")
+	if len(deps) != 0 {
+		t.Errorf("ExtractDependenciesFromText() with empty text returned %v dependencies, want 0", len(deps))
+	}
+
+	// Test with dependencies in text
+	text := `dependencies {
+		implementation 'org.springframework:spring-core:5.3.10'
+		testImplementation 'junit:junit:4.13.2'
+		api project(':app')
+	}
+	publishing {
+    repositories {
+        mavenLocal()
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Java Unrar'
+                description = "${description}"
+                url = 'https://github.com/junrar/junrar'
+                licenses {
+                    license {
+                        name = 'UnRar License'
+                        url = 'https://github.com/junrar/junrar/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gotson'
+                        name = 'Gauthier Roebroeck'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/junrar/junrar.git'
+                }
+            }
+        }
+    }
+}
+nexusPublishing {
+    repositories {
+        // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
+    }
+}`
+
+	deps = parser.ExtractDependenciesFromText(text)
+	// Verify extraction of specific dependency types
+	for _, dep := range deps {
+		if strings.Contains(dep.Group, "github.com") ||
+			strings.Contains(dep.Name, "github.com") ||
+			strings.Contains(dep.Group, "sonatype") ||
+			strings.Contains(dep.Name, "sonatype") {
+			t.Errorf("found a dep it should not have found")
+		}
 	}
 }
 
