@@ -1,6 +1,7 @@
 package dependency
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -572,5 +573,127 @@ func TestContains(t *testing.T) {
 				t.Errorf("contains() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestIssue3Fix 验证Issue #3中的bug已修复
+func TestIssue3Fix(t *testing.T) {
+	parser := NewParser()
+
+	// Issue #3中的完整测试用例
+	text := `dependencies {
+		implementation 'org.springframework:spring-core:5.3.10'
+		testImplementation 'junit:junit:4.13.2'
+		api project(':app')
+	}
+	publishing {
+    repositories {
+        mavenLocal()
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Java Unrar'
+                description = "${description}"
+                url = 'https://github.com/junrar/junrar'
+                licenses {
+                        name = 'UnRar License'
+                        url = 'https://github.com/junrar/junrar/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'gotson'
+                        name = 'Gauthier Roebroeck'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/junrar/junrar.git'
+                }
+            }
+        }
+    }
+}
+nexusPublishing {
+    repositories {
+        // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+        }
+    }
+}`
+
+	deps := parser.ExtractDependenciesFromText(text)
+
+	// 验证依赖数量：应该是3个，不是11个
+	if len(deps) != 3 {
+		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want 3", len(deps))
+	}
+
+	// 验证具体依赖
+	expectedDeps := []struct {
+		group   string
+		name    string
+		version string
+		scope   string
+	}{
+		{"org.springframework", "spring-core", "5.3.10", "implementation"},
+		{"junit", "junit", "4.13.2", "testImplementation"},
+		{"", "app", "", "api"},
+	}
+
+	for i, expected := range expectedDeps {
+		if i >= len(deps) {
+			t.Errorf("Missing dependency %d: %s:%s:%s", i+1, expected.group, expected.name, expected.version)
+			continue
+		}
+
+		dep := deps[i]
+		if dep.Group != expected.group || dep.Name != expected.name ||
+			dep.Version != expected.version || dep.Scope != expected.scope {
+			t.Errorf("Dependency %d mismatch: got %s:%s:%s (scope: %s), want %s:%s:%s (scope: %s)",
+				i+1, dep.Group, dep.Name, dep.Version, dep.Scope,
+				expected.group, expected.name, expected.version, expected.scope)
+		}
+	}
+
+	// 验证没有重复依赖
+	depMap := make(map[string]int)
+	for _, dep := range deps {
+		key := fmt.Sprintf("%s:%s:%s:%s", dep.Group, dep.Name, dep.Version, dep.Scope)
+		depMap[key]++
+	}
+
+	for key, count := range depMap {
+		if count > 1 {
+			t.Errorf("Found duplicate dependency: %s (appears %d times)", key, count)
+		}
+	}
+
+	// 验证问题URL没有被解析为依赖
+	problematicURLs := []string{
+		"https://github.com/junrar/junrar",
+		"https://github.com/junrar/junrar/blob/master/LICENSE",
+		"https://github.com/junrar/junrar.git",
+		"https://ossrh-staging-api.central.sonatype.com/service/local/",
+		"https://central.sonatype.com/repository/maven-snapshots/",
+	}
+
+	for _, url := range problematicURLs {
+		for _, dep := range deps {
+			if strings.Contains(dep.Group, url) || strings.Contains(dep.Name, url) || strings.Contains(dep.Raw, url) {
+				t.Errorf("Found problematic URL parsed as dependency: %s", url)
+			}
+		}
 	}
 }

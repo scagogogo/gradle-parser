@@ -165,47 +165,123 @@ func (dp *Parser) ExtractDependenciesFromText(text string) []*model.Dependency {
 
 	// 分析文本中的依赖声明。
 	lines := strings.Split(text, "\n")
-	currentScope := ""
 
 	for _, line := range lines {
 		trimmedLine := strings.TrimSpace(line)
 
-		// 检查是否是依赖范围声明行。
-		for _, scope := range commonScopes {
-			if strings.HasPrefix(trimmedLine, scope) && strings.Contains(trimmedLine, "(") {
-				currentScope = scope
-				break
-			}
+		// 跳过空行和注释
+		if trimmedLine == "" || strings.HasPrefix(trimmedLine, "//") || strings.HasPrefix(trimmedLine, "/*") {
+			continue
 		}
 
-		// 尝试解析为依赖项。
-		for _, pattern := range []string{
-			`['"]([^'"]+):([^'"]+):([^'"]+)['"]`,           // "group:name:version"。
-			`['"]([^'"]+):([^'"]+)['"]`,                    // "group:name" (没有版本号)。
-			`['"]([^'"]+)\.([^'"]+):([^'"]+):([^'"]+)['"]`, // "group.name:name:version"。
-			`project\(['"]:(.*)['"]\)`,                     // project(":name")。
-		} {
-			re := regexp.MustCompile(pattern)
-			matches := re.FindAllStringSubmatch(trimmedLine, -1)
-
-			for _, match := range matches {
-				if len(match) > 0 {
-					rawDep := match[0]
-					// filter out some unwanted deps。
-					if strings.Contains(rawDep, "https://github.com") ||
-						strings.Contains(rawDep, "https://central.sonatype.com/repository/maven-snapshots") ||
-						strings.Contains(rawDep, "https://ossrh-staging-api.central.sonatype.com/service/local/") {
-						continue
-					}
-					if dep, ok := dp.parseDependencyString(rawDep, currentScope); ok {
-						deps = append(deps, dep)
-					}
-				}
+		// 检查并解析依赖声明行
+		if dep := dp.parseDependencyLine(trimmedLine); dep != nil {
+			// 过滤掉不需要的URL
+			if dp.shouldSkipDependency(dep.Raw) {
+				continue
 			}
+			deps = append(deps, dep)
 		}
 	}
 
 	return deps
+}
+
+// parseDependencyLine 解析单行依赖声明
+func (dp *Parser) parseDependencyLine(line string) *model.Dependency {
+	// 检测scope和依赖声明
+	for _, scope := range commonScopes {
+		scopePattern := fmt.Sprintf(`^%s\s+(.+)$`, regexp.QuoteMeta(scope))
+		re := regexp.MustCompile(scopePattern)
+		if matches := re.FindStringSubmatch(line); len(matches) > 1 {
+			depPart := strings.TrimSpace(matches[1])
+
+			// 按优先级顺序尝试解析依赖格式，避免重复匹配
+			if dep := dp.tryParseProjectDependency(depPart, scope); dep != nil {
+				return dep
+			}
+			if dep := dp.tryParseGAVDependency(depPart, scope); dep != nil {
+				return dep
+			}
+			if dep := dp.tryParseGADependency(depPart, scope); dep != nil {
+				return dep
+			}
+		}
+	}
+
+	return nil
+}
+
+// shouldSkipDependency 检查是否应该跳过某个依赖
+func (dp *Parser) shouldSkipDependency(rawDep string) bool {
+	skipPatterns := []string{
+		"https://github.com",
+		"https://central.sonatype.com/repository/maven-snapshots",
+		"https://ossrh-staging-api.central.sonatype.com/service/local/",
+		"http://",
+		"https://",
+	}
+
+	for _, pattern := range skipPatterns {
+		if strings.Contains(rawDep, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+// tryParseProjectDependency 尝试解析project依赖
+func (dp *Parser) tryParseProjectDependency(depPart, scope string) *model.Dependency {
+	if match := projectRefRegex.FindStringSubmatch(depPart); len(match) > 1 {
+		return &model.Dependency{
+			Name:  match[1],
+			Scope: scope,
+			Raw:   depPart,
+		}
+	}
+	return nil
+}
+
+// tryParseGAVDependency 尝试解析group:name:version格式依赖
+func (dp *Parser) tryParseGAVDependency(depPart, scope string) *model.Dependency {
+	// 先尝试带命名空间的格式: group.name:name:version
+	if match := dotNameRegex.FindStringSubmatch(depPart); len(match) > 5 {
+		group := match[2] + "." + match[3]
+		return &model.Dependency{
+			Group:   group,
+			Name:    match[4],
+			Version: match[5],
+			Scope:   scope,
+			Raw:     depPart,
+		}
+	}
+
+	// 标准GAV格式: group:name:version
+	if match := gavRegex.FindStringSubmatch(depPart); len(match) > 4 {
+		return &model.Dependency{
+			Group:   match[2],
+			Name:    match[3],
+			Version: match[4],
+			Scope:   scope,
+			Raw:     depPart,
+		}
+	}
+
+	return nil
+}
+
+// tryParseGADependency 尝试解析group:name格式依赖（无版本）
+func (dp *Parser) tryParseGADependency(depPart, scope string) *model.Dependency {
+	if match := gaRegex.FindStringSubmatch(depPart); len(match) > 3 {
+		return &model.Dependency{
+			Group:   match[2],
+			Name:    match[3],
+			Version: "", // 版本号为空，可能由dependency-management管理
+			Scope:   scope,
+			Raw:     depPart,
+		}
+	}
+	return nil
 }
 
 // GroupDependenciesByScope 按范围对依赖进行分组。
