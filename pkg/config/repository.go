@@ -9,6 +9,13 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
 
+const (
+	mavenCentralRepo = "mavenCentral"
+	mavenLocalRepo   = "mavenLocal"
+	jcenterRepo      = "jcenter"
+	googleRepo       = "google"
+)
+
 var (
 	// mavenUrlRegex matches Maven repository URLs.
 	// 例如: maven { url 'https://jitpack.io' }
@@ -52,7 +59,7 @@ func (rp *RepositoryParser) ParseRepositoryBlock(block *model.ScriptBlock) ([]*m
 	// 处理子闭包。
 	for name, closures := range block.Closures {
 		switch name {
-		case "mavenCentral", "mavenLocal", "jcenter", "google":
+		case mavenCentralRepo, mavenLocalRepo, jcenterRepo, googleRepo:
 			// 预定义的Maven仓库。
 			repo := &model.Repository{
 				Name: name,
@@ -126,7 +133,7 @@ func (rp *RepositoryParser) ParseRepositoryBlock(block *model.ScriptBlock) ([]*m
 				repo := &model.Repository{
 					Name:   "flatDir",
 					Type:   "flatDir",
-					Config: make(map[string]interface{}),
+					Config: make(map[string]any),
 				}
 
 				// 收集配置。

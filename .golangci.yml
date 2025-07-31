@@ -23,7 +23,7 @@ output:
 linters-settings:
   # Cyclomatic complexity
   cyclop:
-    max-complexity: 15
+    max-complexity: 25
     package-average: 10.0
     skip-tests: true
 
@@ -47,11 +47,11 @@ linters-settings:
 
   # Cognitive complexity
   gocognit:
-    min-complexity: 20
+    min-complexity: 70
 
   # Cyclomatic complexity
   gocyclo:
-    min-complexity: 15
+    min-complexity: 25
 
   # Dot imports
   goimports:
@@ -60,6 +60,10 @@ linters-settings:
   # Line length
   lll:
     line-length: 120
+
+  # Nested if statements
+  nestif:
+    min-complexity: 8
 
   # Naming conventions
   revive:

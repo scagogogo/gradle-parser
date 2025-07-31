@@ -138,7 +138,8 @@ func (p *GradleParser) Parse(content string) (*model.ParseResult, error) {
 
 		// 处理空行和注释。
 		trimmedLine := strings.TrimSpace(line)
-		if trimmedLine == "" || (p.skipComments && (strings.HasPrefix(trimmedLine, "//") || strings.HasPrefix(trimmedLine, "/*"))) {
+		if trimmedLine == "" || (p.skipComments &&
+			(strings.HasPrefix(trimmedLine, "//") || strings.HasPrefix(trimmedLine, "/*"))) {
 			continue
 		}
 
@@ -151,7 +152,7 @@ func (p *GradleParser) Parse(content string) (*model.ParseResult, error) {
 
 	// 使用专门的解析器来提取依赖、插件和仓库。
 	if p.parseDependencies {
-		depParser := dependency.NewDependencyParser()
+		depParser := dependency.NewParser()
 		project.Dependencies = depParser.ExtractDependenciesFromText(content)
 	}
 
@@ -185,7 +186,7 @@ func (p *GradleParser) Parse(content string) (*model.ParseResult, error) {
 }
 
 // parseLine 解析单行内容。
-func (p *GradleParser) parseLine(line string, lineNumber int, project *model.Project) error {
+func (p *GradleParser) parseLine(line string, _ int, project *model.Project) error {
 	line = strings.TrimSpace(line)
 
 	// 跳过空行和注释。
@@ -329,7 +330,7 @@ func (p *GradleParser) parsePluginsBlock(line string, project *model.Project) er
 }
 
 // parseDependenciesBlock 解析依赖块。
-func (p *GradleParser) parseDependenciesBlock(line string, project *model.Project) error {
+func (p *GradleParser) parseDependenciesBlock(_ string, _ *model.Project) error {
 	if !p.parseDependencies {
 		return nil
 	}
@@ -346,21 +347,22 @@ func (p *GradleParser) parseRepositoriesBlock(line string, project *model.Projec
 	}
 
 	// 简单的仓库解析。
-	if strings.Contains(line, "mavenCentral") {
+	switch {
+	case strings.Contains(line, "mavenCentral"):
 		repo := &model.Repository{
 			Name: "mavenCentral",
 			Type: "maven",
 			URL:  "https://repo1.maven.org/maven2/",
 		}
 		project.Repositories = append(project.Repositories, repo)
-	} else if strings.Contains(line, "google") {
+	case strings.Contains(line, "google"):
 		repo := &model.Repository{
 			Name: "google",
 			Type: "maven",
 			URL:  "https://dl.google.com/dl/android/maven2/",
 		}
 		project.Repositories = append(project.Repositories, repo)
-	} else if strings.Contains(line, "maven") && strings.Contains(line, "url") {
+	case strings.Contains(line, "maven") && strings.Contains(line, "url"):
 		// 解析自定义maven仓库。
 		repo := &model.Repository{
 			Name: "custom",

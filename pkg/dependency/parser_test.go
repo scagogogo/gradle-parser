@@ -10,15 +10,15 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
 
-func TestNewDependencyParser(t *testing.T) {
-	parser := NewDependencyParser()
+func TestNewParser(t *testing.T) {
+	parser := NewParser()
 	if parser == nil {
-		t.Error("NewDependencyParser() returned nil")
+		t.Error("NewParser() returned nil")
 	}
 }
 
 func TestParseDependencyBlock(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Test with nil block。
 	_, err := parser.ParseDependencyBlock(nil)
@@ -104,7 +104,7 @@ func TestParseDependencyBlock(t *testing.T) {
 }
 
 func TestParseScopedDependencies(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Create a block with implementation dependencies。
 	block := &model.ScriptBlock{
@@ -121,10 +121,7 @@ func TestParseScopedDependencies(t *testing.T) {
 		},
 	}
 
-	deps, err := parser.parseScopedDependencies(block, "implementation")
-	if err != nil {
-		t.Fatalf("parseScopedDependencies() error = %v", err)
-	}
+	deps := parser.parseScopedDependencies(block, "implementation")
 
 	if len(deps) != 2 {
 		t.Errorf("parseScopedDependencies() returned %v dependencies, want 2", len(deps))
@@ -138,10 +135,7 @@ func TestParseScopedDependencies(t *testing.T) {
 	}
 
 	// Test with non-existent scope。
-	deps, err = parser.parseScopedDependencies(block, "nonexistentScope")
-	if err != nil {
-		t.Fatalf("parseScopedDependencies() with non-existent scope error = %v", err)
-	}
+	deps = parser.parseScopedDependencies(block, "nonexistentScope")
 
 	if len(deps) != 0 {
 		t.Errorf("parseScopedDependencies() with non-existent scope returned %v dependencies, want 0", len(deps))
@@ -149,7 +143,7 @@ func TestParseScopedDependencies(t *testing.T) {
 }
 
 func TestParseCustomDependencies(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Create a block with custom dependencies。
 	block := &model.ScriptBlock{
@@ -159,10 +153,7 @@ func TestParseCustomDependencies(t *testing.T) {
 		},
 	}
 
-	deps, err := parser.parseCustomDependencies(block, "customScope")
-	if err != nil {
-		t.Fatalf("parseCustomDependencies() error = %v", err)
-	}
+	deps := parser.parseCustomDependencies(block, "customScope")
 
 	if len(deps) != 2 {
 		t.Errorf("parseCustomDependencies() returned %v dependencies, want 2", len(deps))
@@ -192,7 +183,7 @@ func TestParseCustomDependencies(t *testing.T) {
 }
 
 func TestParseDependencyString(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	tests := []struct {
 		name    string
@@ -304,7 +295,7 @@ func TestParseDependencyString(t *testing.T) {
 }
 
 func TestExtractDependenciesFromText(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Test with empty text。
 	deps := parser.ExtractDependenciesFromText("")
@@ -350,7 +341,7 @@ func TestExtractDependenciesFromText(t *testing.T) {
 }
 
 func TestExtractDependenciesFromText2(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	testFilePath := filepath.Join("..", "..", "examples", "sample_files", "build.gradle")
 	text, err := os.ReadFile(testFilePath)
@@ -433,7 +424,7 @@ func TestExtractDependenciesFromText2(t *testing.T) {
 }
 
 func TestExtractDependenciesFromTextURLs(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Test with empty text。
 	deps := parser.ExtractDependenciesFromText("")
@@ -509,7 +500,7 @@ nexusPublishing {
 }
 
 func TestGroupDependenciesByScope(t *testing.T) {
-	parser := NewDependencyParser()
+	parser := NewParser()
 
 	// Create a list of dependencies with different scopes。
 	deps := []*model.Dependency{

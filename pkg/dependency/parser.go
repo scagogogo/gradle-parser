@@ -36,16 +36,16 @@ var commonScopes = []string{
 	"debugImplementation", "releaseImplementation",
 }
 
-// DependencyParser 处理Gradle依赖解析。
-type DependencyParser struct{}
+// Parser 处理Gradle依赖解析。
+type Parser struct{}
 
-// NewDependencyParser 创建新的依赖解析器。
-func NewDependencyParser() *DependencyParser {
-	return &DependencyParser{}
+// NewParser 创建新的依赖解析器。
+func NewParser() *Parser {
+	return &Parser{}
 }
 
 // ParseDependencyBlock 解析依赖块。
-func (dp *DependencyParser) ParseDependencyBlock(block *model.ScriptBlock) ([]*model.Dependency, error) {
+func (dp *Parser) ParseDependencyBlock(block *model.ScriptBlock) ([]*model.Dependency, error) {
 	if block == nil {
 		return nil, fmt.Errorf("依赖块为空")
 	}
@@ -54,10 +54,7 @@ func (dp *DependencyParser) ParseDependencyBlock(block *model.ScriptBlock) ([]*m
 
 	// 遍历所有可能的依赖配置范围。
 	for _, scope := range commonScopes {
-		scopeDeps, err := dp.parseScopedDependencies(block, scope)
-		if err != nil {
-			return nil, err
-		}
+		scopeDeps := dp.parseScopedDependencies(block, scope)
 		deps = append(deps, scopeDeps...)
 	}
 
@@ -66,10 +63,7 @@ func (dp *DependencyParser) ParseDependencyBlock(block *model.ScriptBlock) ([]*m
 		if !contains(commonScopes, methodName) {
 			// 这可能是自定义范围。
 			for _, closure := range closures {
-				customDeps, err := dp.parseCustomDependencies(closure, methodName)
-				if err != nil {
-					return nil, err
-				}
+				customDeps := dp.parseCustomDependencies(closure, methodName)
 				deps = append(deps, customDeps...)
 			}
 		}
@@ -79,7 +73,9 @@ func (dp *DependencyParser) ParseDependencyBlock(block *model.ScriptBlock) ([]*m
 }
 
 // parseScopedDependencies 解析指定范围的依赖项。
-func (dp *DependencyParser) parseScopedDependencies(block *model.ScriptBlock, scope string) ([]*model.Dependency, error) {
+func (dp *Parser) parseScopedDependencies(block *model.ScriptBlock,
+	scope string,
+) []*model.Dependency {
 	deps := make([]*model.Dependency, 0)
 
 	// 检查是否有该范围的依赖项方法调用。
@@ -93,11 +89,13 @@ func (dp *DependencyParser) parseScopedDependencies(block *model.ScriptBlock, sc
 		}
 	}
 
-	return deps, nil
+	return deps
 }
 
 // parseCustomDependencies 解析自定义范围的依赖项。
-func (dp *DependencyParser) parseCustomDependencies(block *model.ScriptBlock, scope string) ([]*model.Dependency, error) {
+func (dp *Parser) parseCustomDependencies(block *model.ScriptBlock,
+	scope string,
+) []*model.Dependency {
 	deps := make([]*model.Dependency, 0)
 
 	for _, value := range block.Values {
@@ -106,11 +104,11 @@ func (dp *DependencyParser) parseCustomDependencies(block *model.ScriptBlock, sc
 		}
 	}
 
-	return deps, nil
+	return deps
 }
 
 // parseDependencyString 从字符串解析依赖项。
-func (dp *DependencyParser) parseDependencyString(depStr string, scope string) (*model.Dependency, bool) {
+func (dp *Parser) parseDependencyString(depStr string, scope string) (*model.Dependency, bool) {
 	// 清理字符串。
 	depStr = strings.TrimSpace(depStr)
 
@@ -162,7 +160,7 @@ func (dp *DependencyParser) parseDependencyString(depStr string, scope string) (
 }
 
 // ExtractDependenciesFromText 从原始文本中提取依赖。
-func (dp *DependencyParser) ExtractDependenciesFromText(text string) []*model.Dependency {
+func (dp *Parser) ExtractDependenciesFromText(text string) []*model.Dependency {
 	deps := make([]*model.Dependency, 0)
 
 	// 分析文本中的依赖声明。
@@ -211,7 +209,7 @@ func (dp *DependencyParser) ExtractDependenciesFromText(text string) []*model.De
 }
 
 // GroupDependenciesByScope 按范围对依赖进行分组。
-func (dp *DependencyParser) GroupDependenciesByScope(deps []*model.Dependency) []*model.DependencySet {
+func (dp *Parser) GroupDependenciesByScope(deps []*model.Dependency) []*model.DependencySet {
 	// 使用map收集按范围分组的依赖。
 	scopeMap := make(map[string][]*model.Dependency)
 

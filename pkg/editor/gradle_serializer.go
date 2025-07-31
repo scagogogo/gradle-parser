@@ -228,11 +228,15 @@ func (gs *GradleSerializer) ValidateModifications(modifications []Modification) 
 		}
 
 		if mod.SourceRange.End.StartPos > len(gs.originalText) {
-			errors = append(errors, fmt.Errorf("modification %d: end position %d exceeds text length %d", i, mod.SourceRange.End.StartPos, len(gs.originalText)))
+			errors = append(errors, fmt.Errorf(
+				"modification %d: end position %d exceeds text length %d",
+				i, mod.SourceRange.End.StartPos, len(gs.originalText)))
 		}
 
 		if mod.SourceRange.Start.StartPos > mod.SourceRange.End.StartPos {
-			errors = append(errors, fmt.Errorf("modification %d: start position %d > end position %d", i, mod.SourceRange.Start.StartPos, mod.SourceRange.End.StartPos))
+			errors = append(errors, fmt.Errorf(
+				"modification %d: start position %d > end position %d",
+				i, mod.SourceRange.Start.StartPos, mod.SourceRange.End.StartPos))
 		}
 
 		// 检查替换操作的文本匹配。
@@ -243,7 +247,9 @@ func (gs *GradleSerializer) ValidateModifications(modifications []Modification) 
 			if startPos >= 0 && endPos <= len(gs.originalText) && startPos <= endPos {
 				actualText := gs.originalText[startPos:endPos]
 				if actualText != mod.OldText {
-					errors = append(errors, fmt.Errorf("modification %d: text mismatch, expected '%s', got '%s'", i, mod.OldText, actualText))
+					errors = append(errors, fmt.Errorf(
+						"modification %d: text mismatch, expected '%s', got '%s'",
+						i, mod.OldText, actualText))
 				}
 			}
 		}

@@ -51,7 +51,7 @@ func GetDependencies(filePath string) ([]*model.Dependency, error) {
 	}
 
 	// 创建依赖解析器。
-	depParser := dependency.NewDependencyParser()
+	depParser := dependency.NewParser()
 
 	// 直接从文本提取依赖。
 	return depParser.ExtractDependenciesFromText(string(content)), nil
@@ -79,7 +79,7 @@ func GetRepositories(filePath string) ([]*model.Repository, error) {
 
 // DependenciesByScope 按范围对依赖进行分组.
 func DependenciesByScope(dependencies []*model.Dependency) []*model.DependencySet {
-	depParser := dependency.NewDependencyParser()
+	depParser := dependency.NewParser()
 	return depParser.GroupDependenciesByScope(dependencies)
 }
 
