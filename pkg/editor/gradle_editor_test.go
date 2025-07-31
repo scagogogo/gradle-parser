@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/scagogogo/gradle-parser/pkg/model"
 	"github.com/scagogogo/gradle-parser/pkg/parser"
 )
 
@@ -342,4 +343,180 @@ func TestGradleEditor_AddDependency(t *testing.T) {
 			}
 		})
 	}
+}
+
+// 测试编辑器的边界条件和错误处理
+func TestGradleEditorEdgeCases(t *testing.T) {
+	t.Run("Empty project", func(t *testing.T) {
+		// 创建空的源码映射项目
+		emptyProject := &model.SourceMappedProject{
+			SourceMappedDependencies: []*model.SourceMappedDependency{},
+			SourceMappedPlugins:      []*model.SourceMappedPlugin{},
+			SourceMappedProperties:   []*model.SourceMappedProperty{},
+			SourceMappedRepositories: []*model.SourceMappedRepository{},
+			Lines:                    []string{},
+			OriginalText:             "",
+		}
+
+		editor := NewGradleEditor(emptyProject)
+
+		// 尝试更新不存在的依赖
+		err := editor.UpdateDependencyVersion("group", "name", "1.0.0")
+		if err == nil {
+			t.Error("Should return error for non-existent dependency in empty project")
+		}
+
+		// 尝试更新不存在的插件
+		err = editor.UpdatePluginVersion("plugin", "1.0.0")
+		if err == nil {
+			t.Error("Should return error for non-existent plugin in empty project")
+		}
+
+		// 尝试更新不存在的属性
+		err = editor.UpdateProperty("property", "value")
+		if err == nil {
+			t.Error("Should return error for non-existent property in empty project")
+		}
+
+		// 尝试添加依赖到不存在的dependencies块
+		err = editor.AddDependency("group", "name", "1.0.0", "implementation")
+		if err == nil {
+			t.Error("Should return error when dependencies block not found")
+		}
+	})
+
+	t.Run("Nil project", func(t *testing.T) {
+		// 测试nil项目的处理
+		editor := NewGradleEditor(nil)
+
+		// 所有操作都应该返回错误或安全处理
+		err := editor.UpdateDependencyVersion("group", "name", "1.0.0")
+		if err == nil {
+			t.Error("Should handle nil project gracefully")
+		}
+	})
+
+	t.Run("Duplicate dependencies", func(t *testing.T) {
+		// 创建包含重复依赖的项目
+		duplicateProject := &model.SourceMappedProject{
+			SourceMappedDependencies: []*model.SourceMappedDependency{
+				{
+					Dependency: &model.Dependency{
+						Group:   "mysql",
+						Name:    "mysql-connector-java",
+						Version: "8.0.29",
+						Scope:   "implementation",
+					},
+					SourceRange: model.SourceRange{
+						Start: model.SourcePosition{Line: 2, Column: 5},
+						End:   model.SourcePosition{Line: 2, Column: 50},
+					},
+					RawText: "implementation 'mysql:mysql-connector-java:8.0.29'",
+				},
+				{
+					Dependency: &model.Dependency{
+						Group:   "mysql",
+						Name:    "mysql-connector-java",
+						Version: "8.0.28",
+						Scope:   "testImplementation",
+					},
+					SourceRange: model.SourceRange{
+						Start: model.SourcePosition{Line: 3, Column: 5},
+						End:   model.SourcePosition{Line: 3, Column: 55},
+					},
+					RawText: "testImplementation 'mysql:mysql-connector-java:8.0.28'",
+				},
+			},
+			Lines: []string{
+				"dependencies {",
+				"    implementation 'mysql:mysql-connector-java:8.0.29'",
+				"    testImplementation 'mysql:mysql-connector-java:8.0.28'",
+				"}",
+			},
+			OriginalText: "dependencies {\n    implementation 'mysql:mysql-connector-java:8.0.29'\n    testImplementation 'mysql:mysql-connector-java:8.0.28'\n}",
+		}
+
+		editor := NewGradleEditor(duplicateProject)
+
+		// 更新第一个匹配的依赖
+		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", "8.0.30")
+		if err != nil {
+			t.Fatalf("Should be able to update first matching dependency: %v", err)
+		}
+
+		modifications := editor.GetModifications()
+		if len(modifications) != 1 {
+			t.Errorf("Should create exactly 1 modification for duplicate dependencies, got %d", len(modifications))
+		}
+	})
+
+	t.Run("Very long values", func(t *testing.T) {
+		editor := createTestEditor(t)
+
+		// 尝试设置非常长的版本号
+		longVersion := strings.Repeat("1.0.0-", 100) + "SNAPSHOT"
+		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", longVersion)
+		if err != nil {
+			t.Fatalf("Should handle long version values: %v", err)
+		}
+
+		modifications := editor.GetModifications()
+		if len(modifications) != 1 {
+			t.Errorf("Expected 1 modification for long version, got %d", len(modifications))
+		}
+
+		if !strings.Contains(modifications[0].NewText, longVersion) {
+			t.Error("Modification should contain the long version")
+		}
+	})
+
+	t.Run("Special characters in values", func(t *testing.T) {
+		editor := createTestEditor(t)
+
+		// 测试包含特殊字符的版本号
+		specialVersion := "1.0.0-测试版本-🚀-ñ"
+		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", specialVersion)
+		if err != nil {
+			t.Fatalf("Should handle special characters in version: %v", err)
+		}
+
+		modifications := editor.GetModifications()
+		if len(modifications) != 1 {
+			t.Errorf("Expected 1 modification for special version, got %d", len(modifications))
+		}
+
+		if !strings.Contains(modifications[0].NewText, specialVersion) {
+			t.Error("Modification should contain the special version")
+		}
+	})
+
+	t.Run("Empty values", func(t *testing.T) {
+		editor := createTestEditor(t)
+
+		// 测试空版本号
+		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", "")
+		if err != nil {
+			t.Fatalf("Should handle empty version: %v", err)
+		}
+
+		modifications := editor.GetModifications()
+		if len(modifications) != 1 {
+			t.Errorf("Expected 1 modification for empty version, got %d", len(modifications))
+		}
+	})
+
+	t.Run("Case sensitivity", func(t *testing.T) {
+		editor := createTestEditor(t)
+
+		// 测试大小写敏感性
+		err := editor.UpdateDependencyVersion("MYSQL", "mysql-connector-java", "8.0.30")
+		if err == nil {
+			t.Error("Should be case sensitive for group names")
+		}
+
+		err = editor.UpdateDependencyVersion("mysql", "MYSQL-CONNECTOR-JAVA", "8.0.30")
+		if err == nil {
+			t.Error("Should be case sensitive for artifact names")
+		}
+	})
 }

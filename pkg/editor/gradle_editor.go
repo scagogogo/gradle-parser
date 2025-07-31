@@ -43,6 +43,11 @@ func NewGradleEditor(sourceMappedProject *model.SourceMappedProject) *GradleEdit
 
 // UpdateDependencyVersion 更新依赖版本
 func (ge *GradleEditor) UpdateDependencyVersion(group, name, newVersion string) error {
+	// 检查项目是否为nil
+	if ge.sourceMappedProject == nil {
+		return fmt.Errorf("source mapped project is nil")
+	}
+
 	// 查找匹配的依赖
 	var targetDep *model.SourceMappedDependency
 	for _, dep := range ge.sourceMappedProject.SourceMappedDependencies {
@@ -97,6 +102,11 @@ func (ge *GradleEditor) UpdateDependencyVersion(group, name, newVersion string) 
 
 // UpdatePluginVersion 更新插件版本
 func (ge *GradleEditor) UpdatePluginVersion(pluginId, newVersion string) error {
+	// 检查项目是否为nil
+	if ge.sourceMappedProject == nil {
+		return fmt.Errorf("source mapped project is nil")
+	}
+
 	// 查找匹配的插件
 	var targetPlugin *model.SourceMappedPlugin
 	for _, plugin := range ge.sourceMappedProject.SourceMappedPlugins {
@@ -151,6 +161,11 @@ func (ge *GradleEditor) UpdatePluginVersion(pluginId, newVersion string) error {
 
 // UpdateProperty 更新项目属性
 func (ge *GradleEditor) UpdateProperty(key, newValue string) error {
+	// 检查项目是否为nil
+	if ge.sourceMappedProject == nil {
+		return fmt.Errorf("source mapped project is nil")
+	}
+
 	// 查找匹配的属性
 	var targetProperty *model.SourceMappedProperty
 	for _, prop := range ge.sourceMappedProject.SourceMappedProperties {
@@ -197,6 +212,11 @@ func (ge *GradleEditor) UpdateProperty(key, newValue string) error {
 
 // AddDependency 添加新依赖
 func (ge *GradleEditor) AddDependency(group, name, version, scope string) error {
+	// 检查项目是否为nil
+	if ge.sourceMappedProject == nil {
+		return fmt.Errorf("source mapped project is nil")
+	}
+
 	// 查找dependencies块的位置
 	dependenciesBlockLine := ge.findDependenciesBlock()
 	if dependenciesBlockLine == -1 {
@@ -273,6 +293,10 @@ func (ge *GradleEditor) ClearModifications() {
 
 // findDependenciesBlock 查找dependencies块的起始行
 func (ge *GradleEditor) findDependenciesBlock() int {
+	if ge.sourceMappedProject == nil {
+		return -1
+	}
+
 	for i, line := range ge.sourceMappedProject.Lines {
 		if strings.Contains(strings.TrimSpace(line), "dependencies") && strings.Contains(line, "{") {
 			return i + 1 // 返回1-based行号
@@ -283,6 +307,10 @@ func (ge *GradleEditor) findDependenciesBlock() int {
 
 // findDependenciesBlockEnd 查找dependencies块的结束行
 func (ge *GradleEditor) findDependenciesBlockEnd(startLine int) int {
+	if ge.sourceMappedProject == nil {
+		return -1
+	}
+
 	braceCount := 0
 	started := false
 
