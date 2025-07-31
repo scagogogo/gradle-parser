@@ -164,7 +164,7 @@ export default defineConfig({
 
   // 构建配置
   base: '/gradle-parser/',
-  outDir: '../dist',
+  outDir: '.vitepress/dist',
   ignoreDeadLinks: true,
   
   // Markdown 配置
