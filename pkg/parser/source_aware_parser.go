@@ -94,7 +94,7 @@ func (sap *SourceAwareParser) parseSourceMappedComponents(content string, projec
 			// 插件解析成功。
 		} else {
 			// 尝试解析仓库，忽略错误
-			sap.parseSourceMappedRepository(line, lineNumber, lineStart, project) //nolint:errcheck
+			_ = sap.parseSourceMappedRepository(line, lineNumber, lineStart, project)
 			// 仓库解析成功或失败都继续处理，无法解析的行跳过。
 		}
 
