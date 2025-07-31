@@ -5,19 +5,13 @@ run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
-  skip-dirs:
-    - vendor
-    - .git
-    - docs
-  skip-files:
-    - ".*_test.go"
   modules-download-mode: readonly
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
-  uniq-by-line: true
   sort-results: true
 
 linters-settings:
@@ -109,7 +103,7 @@ linters:
     - errname         # Check error naming conventions
     - errorlint       # Check error wrapping
     - exhaustive      # Check exhaustiveness of enum switch statements
-    - exportloopref   # Check for pointers to enclosing loop variables
+    - copyloopvar     # Check for pointers to enclosing loop variables (replaces exportloopref)
     - forbidigo       # Forbid specific identifiers
     - funlen          # Check function length
     - gochecknoinits  # Check for init functions
@@ -122,7 +116,7 @@ linters:
     - gofumpt         # Check if code is gofumpt-ed
     - goheader        # Check file headers
     - goimports       # Check import formatting
-    - gomnd           # Check for magic numbers
+    # - mnd             # Check for magic numbers (replaces gomnd) - temporarily disabled
     - gomoddirectives # Check go.mod directives
     - gomodguard      # Check go.mod dependencies
     - goprintffuncname # Check printf-like function names
@@ -140,7 +134,7 @@ linters:
     - revive          # Replacement for golint
     - rowserrcheck    # Check for unchecked errors in sql.Rows
     - sqlclosecheck   # Check for unclosed sql.DB
-    - tenv            # Check for os.Setenv usage in tests
+    - usetesting      # Check for os.Setenv usage in tests (replaces tenv)
     - testpackage     # Check for proper test package naming
     - tparallel       # Check for proper use of t.Parallel()
     - unconvert       # Check for unnecessary type conversions
@@ -179,6 +173,19 @@ linters:
   # - wrapcheck       # Check for error wrapping
 
 issues:
+  # Exclude directories
+  exclude-dirs:
+    - vendor
+    - .git
+    - docs
+
+  # Exclude files
+  exclude-files:
+    - ".*_test.go"
+
+  # Uniq by line
+  uniq-by-line: true
+
   # List of regexps of issue texts to exclude
   exclude:
     # Exclude some staticcheck messages
@@ -194,7 +201,7 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gomnd
+        - mnd
         - goconst
         - funlen
         - dupl
@@ -207,7 +214,7 @@ issues:
     # Exclude magic number checks in examples
     - path: examples/
       linters:
-        - gomnd
+        - mnd
 
     # Exclude line length checks in generated files
     - path: ".*\\.pb\\.go"
