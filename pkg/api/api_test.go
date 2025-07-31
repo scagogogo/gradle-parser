@@ -1,4 +1,4 @@
-// Package api 提供API测试
+// Package api 提供API测试。
 package api
 
 import (
@@ -10,7 +10,7 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
 
-// 测试用的Gradle文件内容
+// 测试用的Gradle文件内容。
 const testGradleContent = `plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.0'
@@ -35,12 +35,12 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
 }`
 
-// 创建临时测试文件
+// 创建临时测试文件。
 func createTempGradleFile(t *testing.T, content string) string {
 	tmpDir := t.TempDir()
 	filePath := filepath.Join(tmpDir, "build.gradle")
 
-	err := os.WriteFile(filePath, []byte(content), 0644)
+	err := os.WriteFile(filePath, []byte(content), 0o644)
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestParseFile(t *testing.T) {
 		t.Fatal("ParseFile() returned nil project")
 	}
 
-	// 验证项目基本信息
+	// 验证项目基本信息。
 	if result.Project.Group != "com.example" {
 		t.Errorf("Expected group 'com.example', got '%s'", result.Project.Group)
 	}
@@ -92,7 +92,7 @@ func TestParseString(t *testing.T) {
 		t.Fatal("ParseString() returned nil project")
 	}
 
-	// 验证解析结果
+	// 验证解析结果。
 	if result.Project.Group != "com.example" {
 		t.Errorf("Expected group 'com.example', got '%s'", result.Project.Group)
 	}
@@ -127,7 +127,7 @@ func TestGetDependencies(t *testing.T) {
 		t.Error("GetDependencies() returned no dependencies")
 	}
 
-	// 验证是否包含预期的依赖
+	// 验证是否包含预期的依赖。
 	foundSpringBoot := false
 	foundMySQL := false
 
@@ -161,7 +161,7 @@ func TestGetPlugins(t *testing.T) {
 		t.Error("GetPlugins() returned no plugins")
 	}
 
-	// 验证是否包含预期的插件
+	// 验证是否包含预期的插件。
 	foundJava := false
 	foundSpringBoot := false
 
@@ -198,7 +198,7 @@ func TestGetRepositories(t *testing.T) {
 		t.Error("GetRepositories() returned no repositories")
 	}
 
-	// 验证是否包含预期的仓库
+	// 验证是否包含预期的仓库。
 	foundMavenCentral := false
 	foundGoogle := false
 	foundJitPack := false
@@ -229,7 +229,7 @@ func TestGetRepositories(t *testing.T) {
 }
 
 func TestDependenciesByScope(t *testing.T) {
-	// 创建测试依赖
+	// 创建测试依赖。
 	dependencies := []*model.Dependency{
 		{Group: "org.springframework.boot", Name: "spring-boot-starter-web", Version: "2.7.0", Scope: "implementation"},
 		{Group: "mysql", Name: "mysql-connector-java", Version: "8.0.29", Scope: "implementation"},
@@ -242,7 +242,7 @@ func TestDependenciesByScope(t *testing.T) {
 		t.Error("DependenciesByScope() returned no dependency sets")
 	}
 
-	// 验证分组结果
+	// 验证分组结果。
 	foundImplementation := false
 	foundTestImplementation := false
 
@@ -271,7 +271,7 @@ func TestDependenciesByScope(t *testing.T) {
 }
 
 func TestProjectTypeDetection(t *testing.T) {
-	// 测试Android项目检测
+	// 测试Android项目检测。
 	androidPlugins := []*model.Plugin{
 		{ID: "com.android.application", Version: "7.0.0"},
 		{ID: "kotlin-android", Version: "1.5.30"},
@@ -281,7 +281,7 @@ func TestProjectTypeDetection(t *testing.T) {
 		t.Error("IsAndroidProject() should return true for Android plugins")
 	}
 
-	// 测试Kotlin项目检测
+	// 测试Kotlin项目检测。
 	kotlinPlugins := []*model.Plugin{
 		{ID: "org.jetbrains.kotlin.jvm", Version: "1.7.10"},
 	}
@@ -290,7 +290,7 @@ func TestProjectTypeDetection(t *testing.T) {
 		t.Error("IsKotlinProject() should return true for Kotlin plugins")
 	}
 
-	// 测试Spring Boot项目检测
+	// 测试Spring Boot项目检测。
 	springBootPlugins := []*model.Plugin{
 		{ID: "org.springframework.boot", Version: "2.7.0"},
 	}
@@ -299,7 +299,7 @@ func TestProjectTypeDetection(t *testing.T) {
 		t.Error("IsSpringBootProject() should return true for Spring Boot plugins")
 	}
 
-	// 测试非特定项目类型
+	// 测试非特定项目类型。
 	javaPlugins := []*model.Plugin{
 		{ID: "java"},
 	}
@@ -324,7 +324,7 @@ func TestDefaultOptions(t *testing.T) {
 		t.Fatal("DefaultOptions() returned nil")
 	}
 
-	// 验证默认选项
+	// 验证默认选项。
 	if !options.SkipComments {
 		t.Error("DefaultOptions() should have SkipComments = true")
 	}
@@ -365,7 +365,7 @@ func TestNewParser(t *testing.T) {
 		t.Fatal("NewParser() returned nil")
 	}
 
-	// 测试使用自定义选项的解析器
+	// 测试使用自定义选项的解析器。
 	result, err := parser.Parse(testGradleContent)
 	if err != nil {
 		t.Fatalf("Custom parser Parse() error = %v", err)
@@ -392,17 +392,17 @@ func TestParseFileWithSourceMapping(t *testing.T) {
 		t.Fatal("ParseFileWithSourceMapping() returned nil SourceMappedProject")
 	}
 
-	// 验证文件路径被设置
+	// 验证文件路径被设置。
 	if result.SourceMappedProject.FilePath != filePath {
 		t.Errorf("Expected FilePath '%s', got '%s'", filePath, result.SourceMappedProject.FilePath)
 	}
 
-	// 验证原始文本被保存
+	// 验证原始文本被保存。
 	if result.SourceMappedProject.OriginalText == "" {
 		t.Error("OriginalText should not be empty")
 	}
 
-	// 验证源码映射的组件
+	// 验证源码映射的组件。
 	if len(result.SourceMappedProject.SourceMappedDependencies) == 0 {
 		t.Error("Should have source mapped dependencies")
 	}
@@ -428,13 +428,13 @@ func TestCreateGradleEditor(t *testing.T) {
 		t.Fatal("CreateGradleEditor() returned nil editor")
 	}
 
-	// 验证编辑器可以获取源码映射项目
+	// 验证编辑器可以获取源码映射项目。
 	sourceMappedProject := editor.GetSourceMappedProject()
 	if sourceMappedProject == nil {
 		t.Fatal("Editor should have a SourceMappedProject")
 	}
 
-	// 验证初始修改列表为空
+	// 验证初始修改列表为空。
 	modifications := editor.GetModifications()
 	if len(modifications) != 0 {
 		t.Errorf("New editor should have 0 modifications, got %d", len(modifications))
@@ -453,12 +453,12 @@ func TestUpdateDependencyVersion(t *testing.T) {
 		t.Error("UpdateDependencyVersion() returned empty text")
 	}
 
-	// 验证版本已更新
+	// 验证版本已更新。
 	if !strings.Contains(newText, "mysql:mysql-connector-java:8.0.30") {
 		t.Error("Updated text should contain new version 8.0.30")
 	}
 
-	// 验证旧版本已被替换
+	// 验证旧版本已被替换。
 	if strings.Contains(newText, "mysql:mysql-connector-java:8.0.29") {
 		t.Error("Updated text should not contain old version 8.0.29")
 	}
@@ -476,19 +476,19 @@ func TestUpdatePluginVersion(t *testing.T) {
 		t.Error("UpdatePluginVersion() returned empty text")
 	}
 
-	// 验证版本已更新
+	// 验证版本已更新。
 	if !strings.Contains(newText, "id 'org.springframework.boot' version '2.7.2'") {
 		t.Error("Updated text should contain new version 2.7.2")
 	}
 
-	// 验证旧版本已被替换
+	// 验证旧版本已被替换。
 	if strings.Contains(newText, "version '2.7.0'") {
 		t.Error("Updated text should not contain old version 2.7.0")
 	}
 }
 
 func TestErrorHandling(t *testing.T) {
-	// 测试文件不存在的情况
+	// 测试文件不存在的情况。
 	t.Run("File not found", func(t *testing.T) {
 		_, err := ParseFile("non-existent-file.gradle")
 		if err == nil {
@@ -531,21 +531,21 @@ func TestErrorHandling(t *testing.T) {
 		}
 	})
 
-	// 测试无效内容的情况
+	// 测试无效内容的情况。
 	t.Run("Invalid content", func(t *testing.T) {
 		invalidContent := "this is not a valid gradle file content"
 
 		result, err := ParseString(invalidContent)
-		// 解析器应该能处理无效内容，但可能返回空结果
+		// 解析器应该能处理无效内容，但可能返回空结果。
 		if err != nil {
 			t.Logf("ParseString() with invalid content returned error: %v", err)
 		} else if result != nil && result.Project != nil {
-			// 如果没有错误，项目信息应该是空的或默认值
+			// 如果没有错误，项目信息应该是空的或默认值。
 			t.Logf("ParseString() with invalid content returned project: %+v", result.Project)
 		}
 	})
 
-	// 测试更新不存在的依赖
+	// 测试更新不存在的依赖。
 	t.Run("Update non-existent dependency", func(t *testing.T) {
 		filePath := createTempGradleFile(t, testGradleContent)
 
@@ -555,7 +555,7 @@ func TestErrorHandling(t *testing.T) {
 		}
 	})
 
-	// 测试更新不存在的插件
+	// 测试更新不存在的插件。
 	t.Run("Update non-existent plugin", func(t *testing.T) {
 		filePath := createTempGradleFile(t, testGradleContent)
 
@@ -571,7 +571,7 @@ func TestVersion(t *testing.T) {
 		t.Error("Version constant should not be empty")
 	}
 
-	// 验证版本格式（应该是语义化版本）
+	// 验证版本格式（应该是语义化版本）。
 	if !strings.Contains(Version, ".") {
 		t.Error("Version should contain dots (semantic versioning)")
 	}

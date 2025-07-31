@@ -1,4 +1,4 @@
-// Package editor 提供Gradle文件的序列化功能
+// Package editor 提供Gradle文件的序列化功能。
 package editor
 
 import (
@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-// GradleSerializer 最小diff序列化器
+// GradleSerializer 最小diff序列化器。
 type GradleSerializer struct {
 	originalText string
 	lines        []string
 }
 
-// NewGradleSerializer 创建新的序列化器
+// NewGradleSerializer 创建新的序列化器。
 func NewGradleSerializer(originalText string) *GradleSerializer {
 	return &GradleSerializer{
 		originalText: originalText,
@@ -21,20 +21,20 @@ func NewGradleSerializer(originalText string) *GradleSerializer {
 	}
 }
 
-// ApplyModifications 应用修改操作并返回新的文本
+// ApplyModifications 应用修改操作并返回新的文本。
 func (gs *GradleSerializer) ApplyModifications(modifications []Modification) (string, error) {
 	if len(modifications) == 0 {
 		return gs.originalText, nil
 	}
 
-	// 按位置排序修改操作（从后往前，避免位置偏移）
+	// 按位置排序修改操作（从后往前，避免位置偏移）。
 	sortedMods := make([]Modification, len(modifications))
 	copy(sortedMods, modifications)
 	sort.Slice(sortedMods, func(i, j int) bool {
 		return sortedMods[i].SourceRange.Start.StartPos > sortedMods[j].SourceRange.Start.StartPos
 	})
 
-	// 应用修改
+	// 应用修改。
 	result := gs.originalText
 	for _, mod := range sortedMods {
 		var err error
@@ -47,7 +47,7 @@ func (gs *GradleSerializer) ApplyModifications(modifications []Modification) (st
 	return result, nil
 }
 
-// applyModification 应用单个修改操作
+// applyModification 应用单个修改操作。
 func (gs *GradleSerializer) applyModification(text string, mod Modification) (string, error) {
 	switch mod.Type {
 	case ModificationTypeReplace:
@@ -61,7 +61,7 @@ func (gs *GradleSerializer) applyModification(text string, mod Modification) (st
 	}
 }
 
-// applyReplace 应用替换操作
+// applyReplace 应用替换操作。
 func (gs *GradleSerializer) applyReplace(text string, mod Modification) (string, error) {
 	startPos := mod.SourceRange.Start.StartPos
 	endPos := mod.SourceRange.End.StartPos
@@ -70,13 +70,13 @@ func (gs *GradleSerializer) applyReplace(text string, mod Modification) (string,
 		return "", fmt.Errorf("invalid source range for replace operation")
 	}
 
-	// 验证要替换的文本是否匹配
+	// 验证要替换的文本是否匹配。
 	actualText := text[startPos:endPos]
 	if actualText != mod.OldText {
-		// 尝试在行内查找匹配的文本
+		// 尝试在行内查找匹配的文本。
 		line := gs.getLineFromPosition(text, startPos)
 		if strings.Contains(line, mod.OldText) {
-			// 在行内查找精确位置
+			// 在行内查找精确位置。
 			lineStart := gs.getLineStartPosition(text, startPos)
 			relativePos := strings.Index(line, mod.OldText)
 			if relativePos != -1 {
@@ -91,7 +91,7 @@ func (gs *GradleSerializer) applyReplace(text string, mod Modification) (string,
 	return text[:startPos] + mod.NewText + text[endPos:], nil
 }
 
-// applyInsert 应用插入操作
+// applyInsert 应用插入操作。
 func (gs *GradleSerializer) applyInsert(text string, mod Modification) (string, error) {
 	insertPos := mod.SourceRange.Start.StartPos
 
@@ -102,7 +102,7 @@ func (gs *GradleSerializer) applyInsert(text string, mod Modification) (string, 
 	return text[:insertPos] + mod.NewText + text[insertPos:], nil
 }
 
-// applyDelete 应用删除操作
+// applyDelete 应用删除操作。
 func (gs *GradleSerializer) applyDelete(text string, mod Modification) (string, error) {
 	startPos := mod.SourceRange.Start.StartPos
 	endPos := mod.SourceRange.End.StartPos
@@ -114,7 +114,7 @@ func (gs *GradleSerializer) applyDelete(text string, mod Modification) (string, 
 	return text[:startPos] + text[endPos:], nil
 }
 
-// getLineFromPosition 根据位置获取所在行的文本
+// getLineFromPosition 根据位置获取所在行的文本。
 func (gs *GradleSerializer) getLineFromPosition(text string, pos int) string {
 	lines := strings.Split(text, "\n")
 	currentPos := 0
@@ -124,13 +124,13 @@ func (gs *GradleSerializer) getLineFromPosition(text string, pos int) string {
 		if pos >= currentPos && pos <= lineEnd {
 			return line
 		}
-		currentPos = lineEnd + 1 // +1 for newline
+		currentPos = lineEnd + 1 // +1 for newline。
 	}
 
 	return ""
 }
 
-// getLineStartPosition 根据位置获取所在行的起始位置
+// getLineStartPosition 根据位置获取所在行的起始位置。
 func (gs *GradleSerializer) getLineStartPosition(text string, pos int) int {
 	lines := strings.Split(text, "\n")
 	currentPos := 0
@@ -140,13 +140,13 @@ func (gs *GradleSerializer) getLineStartPosition(text string, pos int) int {
 		if pos >= currentPos && pos <= lineEnd {
 			return currentPos
 		}
-		currentPos = lineEnd + 1 // +1 for newline
+		currentPos = lineEnd + 1 // +1 for newline。
 	}
 
 	return 0
 }
 
-// GenerateDiff 生成修改的diff信息
+// GenerateDiff 生成修改的diff信息。
 func (gs *GradleSerializer) GenerateDiff(modifications []Modification) []DiffLine {
 	diffLines := make([]DiffLine, 0)
 
@@ -185,7 +185,7 @@ func (gs *GradleSerializer) GenerateDiff(modifications []Modification) []DiffLin
 	return diffLines
 }
 
-// DiffLine 表示diff中的一行
+// DiffLine 表示diff中的一行。
 type DiffLine struct {
 	Type        DiffType `json:"type"`
 	LineNumber  int      `json:"lineNumber"`
@@ -193,7 +193,7 @@ type DiffLine struct {
 	Description string   `json:"description"`
 }
 
-// DiffType diff类型
+// DiffType diff类型。
 type DiffType string
 
 const (
@@ -202,7 +202,7 @@ const (
 	DiffTypeModify DiffType = "modify"
 )
 
-// String 返回diff行的字符串表示
+// String 返回diff行的字符串表示。
 func (dl DiffLine) String() string {
 	prefix := " "
 	switch dl.Type {
@@ -217,12 +217,12 @@ func (dl DiffLine) String() string {
 	return fmt.Sprintf("%s %d: %s", prefix, dl.LineNumber, dl.Content)
 }
 
-// ValidateModifications 验证修改操作的有效性
+// ValidateModifications 验证修改操作的有效性。
 func (gs *GradleSerializer) ValidateModifications(modifications []Modification) []error {
 	errors := make([]error, 0)
 
 	for i, mod := range modifications {
-		// 检查位置范围
+		// 检查位置范围。
 		if mod.SourceRange.Start.StartPos < 0 {
 			errors = append(errors, fmt.Errorf("modification %d: invalid start position %d", i, mod.SourceRange.Start.StartPos))
 		}
@@ -235,7 +235,7 @@ func (gs *GradleSerializer) ValidateModifications(modifications []Modification) 
 			errors = append(errors, fmt.Errorf("modification %d: start position %d > end position %d", i, mod.SourceRange.Start.StartPos, mod.SourceRange.End.StartPos))
 		}
 
-		// 检查替换操作的文本匹配
+		// 检查替换操作的文本匹配。
 		if mod.Type == ModificationTypeReplace {
 			startPos := mod.SourceRange.Start.StartPos
 			endPos := mod.SourceRange.End.StartPos
@@ -252,7 +252,7 @@ func (gs *GradleSerializer) ValidateModifications(modifications []Modification) 
 	return errors
 }
 
-// GetModificationSummary 获取修改操作的摘要
+// GetModificationSummary 获取修改操作的摘要。
 func (gs *GradleSerializer) GetModificationSummary(modifications []Modification) ModificationSummary {
 	summary := ModificationSummary{
 		TotalModifications: len(modifications),
@@ -268,7 +268,7 @@ func (gs *GradleSerializer) GetModificationSummary(modifications []Modification)
 	return summary
 }
 
-// ModificationSummary 修改操作摘要
+// ModificationSummary 修改操作摘要。
 type ModificationSummary struct {
 	TotalModifications int                      `json:"totalModifications"`
 	ByType             map[ModificationType]int `json:"byType"`

@@ -7,7 +7,7 @@ import (
 )
 
 func TestProject(t *testing.T) {
-	// Test that we can create and use a Project
+	// Test that we can create and use a Project。
 	project := &Project{
 		Group:       "com.example",
 		Name:        "test-project",
@@ -26,7 +26,7 @@ func TestProject(t *testing.T) {
 		FilePath:     "/path/to/build.gradle",
 	}
 
-	// Verify the project fields
+	// Verify the project fields。
 	if project.Group != "com.example" {
 		t.Errorf("Project Group = %s, want com.example", project.Group)
 	}
@@ -39,7 +39,7 @@ func TestProject(t *testing.T) {
 }
 
 func TestDependency(t *testing.T) {
-	// Test that we can create and use a Dependency
+	// Test that we can create and use a Dependency。
 	dep := &Dependency{
 		Group:      "org.springframework",
 		Name:       "spring-core",
@@ -49,7 +49,7 @@ func TestDependency(t *testing.T) {
 		Raw:        "org.springframework:spring-core:5.3.10",
 	}
 
-	// Verify the dependency fields
+	// Verify the dependency fields。
 	if dep.Group != "org.springframework" {
 		t.Errorf("Dependency Group = %s, want org.springframework", dep.Group)
 	}
@@ -62,7 +62,7 @@ func TestDependency(t *testing.T) {
 }
 
 func TestPlugin(t *testing.T) {
-	// Test that we can create and use a Plugin
+	// Test that we can create and use a Plugin。
 	plugin := &Plugin{
 		ID:      "java",
 		Version: "1.0.0",
@@ -70,7 +70,7 @@ func TestPlugin(t *testing.T) {
 		Config:  make(map[string]interface{}),
 	}
 
-	// Verify the plugin fields
+	// Verify the plugin fields。
 	if plugin.ID != "java" {
 		t.Errorf("Plugin ID = %s, want java", plugin.ID)
 	}
@@ -83,7 +83,7 @@ func TestPlugin(t *testing.T) {
 }
 
 func TestRepository(t *testing.T) {
-	// Test that we can create and use a Repository
+	// Test that we can create and use a Repository。
 	repo := &Repository{
 		Name:     "mavenCentral",
 		URL:      "https://repo.maven.apache.org/maven2/",
@@ -93,7 +93,7 @@ func TestRepository(t *testing.T) {
 		Password: "pass",
 	}
 
-	// Verify the repository fields
+	// Verify the repository fields。
 	if repo.Name != "mavenCentral" {
 		t.Errorf("Repository Name = %s, want mavenCentral", repo.Name)
 	}
@@ -106,7 +106,7 @@ func TestRepository(t *testing.T) {
 }
 
 func TestTask(t *testing.T) {
-	// Test that we can create and use a Task
+	// Test that we can create and use a Task。
 	task := &Task{
 		Name:        "test",
 		Type:        "Test",
@@ -116,7 +116,7 @@ func TestTask(t *testing.T) {
 		Config:      make(map[string]interface{}),
 	}
 
-	// Verify the task fields
+	// Verify the task fields。
 	if task.Name != "test" {
 		t.Errorf("Task Name = %s, want test", task.Name)
 	}
@@ -129,7 +129,7 @@ func TestTask(t *testing.T) {
 }
 
 func TestScriptBlock(t *testing.T) {
-	// Test that we can create and use a ScriptBlock
+	// Test that we can create and use a ScriptBlock。
 	parent := &ScriptBlock{
 		Name:     "parent",
 		Children: make([]*ScriptBlock, 0),
@@ -149,7 +149,7 @@ func TestScriptBlock(t *testing.T) {
 
 	parent.Children = append(parent.Children, child)
 
-	// Verify the relationship
+	// Verify the relationship。
 	if len(parent.Children) != 1 {
 		t.Errorf("Parent has %d children, want 1", len(parent.Children))
 	}
@@ -162,7 +162,7 @@ func TestScriptBlock(t *testing.T) {
 }
 
 func TestDependencySet(t *testing.T) {
-	// Test that we can create and use a DependencySet
+	// Test that we can create and use a DependencySet。
 	deps := []*Dependency{
 		{Group: "org.springframework", Name: "spring-core", Version: "5.3.10"},
 		{Group: "com.google.guava", Name: "guava", Version: "31.1-jre"},
@@ -173,7 +173,7 @@ func TestDependencySet(t *testing.T) {
 		Dependencies: deps,
 	}
 
-	// Verify the dependency set
+	// Verify the dependency set。
 	if set.Scope != "implementation" {
 		t.Errorf("DependencySet Scope = %s, want implementation", set.Scope)
 	}
@@ -183,7 +183,7 @@ func TestDependencySet(t *testing.T) {
 }
 
 func TestParseResult(t *testing.T) {
-	// Test that we can create and use a ParseResult
+	// Test that we can create and use a ParseResult。
 	project := &Project{
 		Group:   "com.example",
 		Name:    "test-project",
@@ -198,7 +198,7 @@ func TestParseResult(t *testing.T) {
 		ParseTime: "100ms",
 	}
 
-	// Verify the parse result
+	// Verify the parse result。
 	if result.Project != project {
 		t.Error("ParseResult Project is not correct")
 	}
@@ -214,7 +214,7 @@ func TestParseResult(t *testing.T) {
 }
 
 func TestModelJSON(t *testing.T) {
-	// Test that models can be marshalled to JSON
+	// Test that models can be marshalled to JSON。
 	project := &Project{
 		Group:       "com.example",
 		Name:        "test-project",
@@ -231,13 +231,13 @@ func TestModelJSON(t *testing.T) {
 		},
 	}
 
-	// Marshal to JSON
+	// Marshal to JSON。
 	jsonData, err := json.Marshal(project)
 	if err != nil {
 		t.Fatalf("Failed to marshal Project to JSON: %v", err)
 	}
 
-	// Verify that the JSON contains expected fields
+	// Verify that the JSON contains expected fields。
 	jsonStr := string(jsonData)
 	expectedFields := []string{"group", "name", "version", "description", "plugins", "dependencies", "repositories"}
 	for _, field := range expectedFields {
@@ -247,7 +247,7 @@ func TestModelJSON(t *testing.T) {
 	}
 }
 
-// Helper function to check if a string contains a substring
+// Helper function to check if a string contains a substring。
 func contains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }

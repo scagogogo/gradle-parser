@@ -55,12 +55,12 @@ func TestSourceAwareParser_ParseWithSourceMapping(t *testing.T) {
 		t.Fatal("SourceMappedProject should not be nil")
 	}
 
-	// 验证原始文本被保存
+	// 验证原始文本被保存。
 	if result.SourceMappedProject.OriginalText != testSourceAwareContent {
 		t.Error("Original text should be preserved")
 	}
 
-	// 验证行分割
+	// 验证行分割。
 	expectedLines := strings.Split(testSourceAwareContent, "\n")
 	if len(result.SourceMappedProject.Lines) != len(expectedLines) {
 		t.Errorf("Expected %d lines, got %d", len(expectedLines), len(result.SourceMappedProject.Lines))
@@ -77,12 +77,12 @@ func TestSourceAwareParser_ParseSourceMappedDependencies(t *testing.T) {
 
 	dependencies := result.SourceMappedProject.SourceMappedDependencies
 
-	// 应该找到至少3个依赖
+	// 应该找到至少3个依赖。
 	if len(dependencies) < 3 {
 		t.Errorf("Expected at least 3 dependencies, got %d", len(dependencies))
 	}
 
-	// 验证依赖的源码位置信息
+	// 验证依赖的源码位置信息。
 	for i, dep := range dependencies {
 		if dep.SourceRange.Start.Line <= 0 {
 			t.Errorf("Dependency %d should have valid start line, got %d", i, dep.SourceRange.Start.Line)
@@ -96,13 +96,13 @@ func TestSourceAwareParser_ParseSourceMappedDependencies(t *testing.T) {
 			t.Errorf("Dependency %d should have raw text", i)
 		}
 
-		// 验证原始文本确实存在于源码中
+		// 验证原始文本确实存在于源码中。
 		if !strings.Contains(testSourceAwareContent, dep.RawText) {
 			t.Errorf("Dependency %d raw text '%s' not found in source", i, dep.RawText)
 		}
 	}
 
-	// 查找特定依赖并验证其信息
+	// 查找特定依赖并验证其信息。
 	var mysqlDep *model.SourceMappedDependency
 	for _, dep := range dependencies {
 		if dep.Group == "mysql" && dep.Name == "mysql-connector-java" {
@@ -134,12 +134,12 @@ func TestSourceAwareParser_ParseSourceMappedPlugins(t *testing.T) {
 
 	plugins := result.SourceMappedProject.SourceMappedPlugins
 
-	// 应该找到至少2个插件
+	// 应该找到至少2个插件。
 	if len(plugins) < 2 {
 		t.Errorf("Expected at least 2 plugins, got %d", len(plugins))
 	}
 
-	// 验证插件的源码位置信息
+	// 验证插件的源码位置信息。
 	for i, plugin := range plugins {
 		if plugin.SourceRange.Start.Line <= 0 {
 			t.Errorf("Plugin %d should have valid start line, got %d", i, plugin.SourceRange.Start.Line)
@@ -149,13 +149,13 @@ func TestSourceAwareParser_ParseSourceMappedPlugins(t *testing.T) {
 			t.Errorf("Plugin %d should have raw text", i)
 		}
 
-		// 验证原始文本确实存在于源码中
+		// 验证原始文本确实存在于源码中。
 		if !strings.Contains(testSourceAwareContent, plugin.RawText) {
 			t.Errorf("Plugin %d raw text '%s' not found in source", i, plugin.RawText)
 		}
 	}
 
-	// 查找Spring Boot插件并验证其信息
+	// 查找Spring Boot插件并验证其信息。
 	var springBootPlugin *model.SourceMappedPlugin
 	for _, plugin := range plugins {
 		if plugin.ID == "org.springframework.boot" {
@@ -187,12 +187,12 @@ func TestSourceAwareParser_ParseSourceMappedRepositories(t *testing.T) {
 
 	repositories := result.SourceMappedProject.SourceMappedRepositories
 
-	// 应该找到至少2个仓库
+	// 应该找到至少2个仓库。
 	if len(repositories) < 2 {
 		t.Errorf("Expected at least 2 repositories, got %d", len(repositories))
 	}
 
-	// 验证仓库的源码位置信息
+	// 验证仓库的源码位置信息。
 	for i, repo := range repositories {
 		if repo.SourceRange.Start.Line <= 0 {
 			t.Errorf("Repository %d should have valid start line, got %d", i, repo.SourceRange.Start.Line)
@@ -202,13 +202,13 @@ func TestSourceAwareParser_ParseSourceMappedRepositories(t *testing.T) {
 			t.Errorf("Repository %d should have raw text", i)
 		}
 
-		// 验证原始文本确实存在于源码中
+		// 验证原始文本确实存在于源码中。
 		if !strings.Contains(testSourceAwareContent, repo.RawText) {
 			t.Errorf("Repository %d raw text '%s' not found in source", i, repo.RawText)
 		}
 	}
 
-	// 查找mavenCentral仓库
+	// 查找mavenCentral仓库。
 	var mavenCentralRepo *model.SourceMappedRepository
 	for _, repo := range repositories {
 		if repo.Name == "mavenCentral" {
@@ -236,12 +236,12 @@ func TestSourceAwareParser_ParseSourceMappedProperties(t *testing.T) {
 
 	properties := result.SourceMappedProject.SourceMappedProperties
 
-	// 应该找到至少3个属性
+	// 应该找到至少3个属性。
 	if len(properties) < 3 {
 		t.Errorf("Expected at least 3 properties, got %d", len(properties))
 	}
 
-	// 验证属性的源码位置信息
+	// 验证属性的源码位置信息。
 	for i, prop := range properties {
 		if prop.SourceRange.Start.Line <= 0 {
 			t.Errorf("Property %d should have valid start line, got %d", i, prop.SourceRange.Start.Line)
@@ -260,7 +260,7 @@ func TestSourceAwareParser_ParseSourceMappedProperties(t *testing.T) {
 		}
 	}
 
-	// 查找特定属性并验证
+	// 查找特定属性并验证。
 	expectedProperties := map[string]string{
 		"group":       "com.example",
 		"version":     "0.1.0-SNAPSHOT",
@@ -286,7 +286,7 @@ func TestSourceAwareParser_ParseSourceMappedProperties(t *testing.T) {
 }
 
 func TestSourceAwareParser_PositionAccuracy(t *testing.T) {
-	// 测试位置信息的准确性
+	// 测试位置信息的准确性。
 	parser := NewSourceAwareParser()
 
 	result, err := parser.ParseWithSourceMapping(testSourceAwareContent)
@@ -294,9 +294,9 @@ func TestSourceAwareParser_PositionAccuracy(t *testing.T) {
 		t.Fatalf("ParseWithSourceMapping failed: %v", err)
 	}
 
-	// 验证依赖位置的准确性
+	// 验证依赖位置的准确性。
 	for _, dep := range result.SourceMappedProject.SourceMappedDependencies {
-		// 从原始文本中提取指定位置的内容
+		// 从原始文本中提取指定位置的内容。
 		startPos := dep.SourceRange.Start.StartPos
 		endPos := dep.SourceRange.End.StartPos
 
@@ -307,13 +307,13 @@ func TestSourceAwareParser_PositionAccuracy(t *testing.T) {
 
 		extractedText := testSourceAwareContent[startPos:endPos]
 
-		// 提取的文本应该包含依赖的原始文本
+		// 提取的文本应该包含依赖的原始文本。
 		if !strings.Contains(extractedText, dep.RawText) {
 			t.Errorf("Extracted text '%s' should contain raw text '%s'", extractedText, dep.RawText)
 		}
 	}
 
-	// 验证插件位置的准确性
+	// 验证插件位置的准确性。
 	for _, plugin := range result.SourceMappedProject.SourceMappedPlugins {
 		startPos := plugin.SourceRange.Start.StartPos
 		endPos := plugin.SourceRange.End.StartPos
@@ -325,7 +325,7 @@ func TestSourceAwareParser_PositionAccuracy(t *testing.T) {
 
 		extractedText := testSourceAwareContent[startPos:endPos]
 
-		// 提取的文本应该包含插件的原始文本
+		// 提取的文本应该包含插件的原始文本。
 		if !strings.Contains(extractedText, plugin.RawText) {
 			t.Errorf("Extracted text '%s' should contain raw text '%s'", extractedText, plugin.RawText)
 		}

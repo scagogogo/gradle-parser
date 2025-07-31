@@ -1,4 +1,4 @@
-// Package api 提供解析Gradle配置文件的API
+// Package api 提供解析Gradle配置文件的API。
 package api
 
 import (
@@ -37,23 +37,23 @@ func ParseReader(reader io.Reader) (*model.ParseResult, error) {
 
 // GetDependencies 从文件提取依赖信息.
 func GetDependencies(filePath string) ([]*model.Dependency, error) {
-	// 尝试打开文件
+	// 尝试打开文件。
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	// 读取整个文件内容
+	// 读取整个文件内容。
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
 
-	// 创建依赖解析器
+	// 创建依赖解析器。
 	depParser := dependency.NewDependencyParser()
 
-	// 直接从文本提取依赖
+	// 直接从文本提取依赖。
 	return depParser.ExtractDependenciesFromText(string(content)), nil
 }
 
@@ -144,7 +144,7 @@ func NewParser(options *Options) parser.Parser {
 
 // ParseFileWithSourceMapping 解析文件并返回带源码位置信息的结果.
 func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult, error) {
-	// 读取文件内容
+	// 读取文件内容。
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -156,14 +156,14 @@ func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult
 		return nil, err
 	}
 
-	// 使用位置感知解析器
+	// 使用位置感知解析器。
 	sourceAwareParser := parser.NewSourceAwareParser()
 	result, err := sourceAwareParser.ParseWithSourceMapping(string(content))
 	if err != nil {
 		return nil, err
 	}
 
-	// 设置文件路径
+	// 设置文件路径。
 	if result.SourceMappedProject != nil {
 		result.SourceMappedProject.FilePath = filePath
 	}
@@ -173,48 +173,48 @@ func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult
 
 // CreateGradleEditor 创建Gradle编辑器.
 func CreateGradleEditor(filePath string) (*editor.GradleEditor, error) {
-	// 解析文件获取源码位置信息
+	// 解析文件获取源码位置信息。
 	result, err := ParseFileWithSourceMapping(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	// 创建编辑器
+	// 创建编辑器。
 	return editor.NewGradleEditor(result.SourceMappedProject), nil
 }
 
 // UpdateDependencyVersion 更新依赖版本（便捷方法）.
 func UpdateDependencyVersion(filePath, group, name, newVersion string) (string, error) {
-	// 创建编辑器
+	// 创建编辑器。
 	gradleEditor, err := CreateGradleEditor(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	// 更新版本
+	// 更新版本。
 	if err := gradleEditor.UpdateDependencyVersion(group, name, newVersion); err != nil {
 		return "", err
 	}
 
-	// 应用修改
+	// 应用修改。
 	serializer := editor.NewGradleSerializer(gradleEditor.GetSourceMappedProject().OriginalText)
 	return serializer.ApplyModifications(gradleEditor.GetModifications())
 }
 
 // UpdatePluginVersion 更新插件版本（便捷方法）.
 func UpdatePluginVersion(filePath, pluginId, newVersion string) (string, error) {
-	// 创建编辑器
+	// 创建编辑器。
 	gradleEditor, err := CreateGradleEditor(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	// 更新版本
+	// 更新版本。
 	if err := gradleEditor.UpdatePluginVersion(pluginId, newVersion); err != nil {
 		return "", err
 	}
 
-	// 应用修改
+	// 应用修改。
 	serializer := editor.NewGradleSerializer(gradleEditor.GetSourceMappedProject().OriginalText)
 	return serializer.ApplyModifications(gradleEditor.GetModifications())
 }

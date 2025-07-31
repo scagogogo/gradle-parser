@@ -1,4 +1,4 @@
-// Package util 提供工具函数
+// Package util 提供工具函数。
 package util
 
 import (
@@ -45,7 +45,7 @@ func FindGradleFiles(rootDir string) ([]string, error) {
 func FindProjectRoot(startDir string) (string, error) {
 	currentDir := startDir
 	for {
-		// 检查当前目录是否有build.gradle文件
+		// 检查当前目录是否有build.gradle文件。
 		buildGradle := filepath.Join(currentDir, "build.gradle")
 		buildGradleKts := filepath.Join(currentDir, "build.gradle.kts")
 
@@ -53,9 +53,9 @@ func FindProjectRoot(startDir string) (string, error) {
 			return currentDir, nil
 		}
 
-		// 获取父目录
+		// 获取父目录。
 		parentDir := filepath.Dir(currentDir)
-		// 检查是否已到达文件系统根目录
+		// 检查是否已到达文件系统根目录。
 		if parentDir == currentDir {
 			break
 		}

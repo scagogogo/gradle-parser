@@ -113,7 +113,7 @@ linters:
     - goconst         # Check for repeated strings that could be constants
     - gocritic        # Comprehensive Go source code linter
     - gocyclo         # Check cyclomatic complexity
-    - godot           # Check if comments end in a period
+    # - godot           # Check if comments end in a period (disabled due to issues with Chinese comments)
     - gofmt           # Check if code is gofmt-ed
     - gofumpt         # Check if code is gofumpt-ed
     - goheader        # Check file headers

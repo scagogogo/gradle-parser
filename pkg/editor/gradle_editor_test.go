@@ -8,8 +8,8 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/parser"
 )
 
-// 测试用的示例Gradle文件
-const testGradleContent = `// Test Gradle file
+// 测试用的示例Gradle文件。
+const testGradleContent = `// Test Gradle file。
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.0'
@@ -50,7 +50,7 @@ task customTask {
 `
 
 func createTestEditor(t *testing.T) *GradleEditor {
-	// 创建位置感知解析器
+	// 创建位置感知解析器。
 	sourceAwareParser := parser.NewSourceAwareParser()
 	result, err := sourceAwareParser.ParseWithSourceMapping(testGradleContent)
 	if err != nil {
@@ -129,7 +129,7 @@ func TestGradleEditor_UpdateDependencyVersion(t *testing.T) {
 			}
 
 			if hasDiff {
-				// 验证修改的内容
+				// 验证修改的内容。
 				mod := modifications[0]
 				if mod.Type != ModificationTypeReplace {
 					t.Errorf("Expected replace modification, got: %s", mod.Type)
@@ -345,10 +345,10 @@ func TestGradleEditor_AddDependency(t *testing.T) {
 	}
 }
 
-// 测试编辑器的边界条件和错误处理
+// 测试编辑器的边界条件和错误处理。
 func TestGradleEditorEdgeCases(t *testing.T) {
 	t.Run("Empty project", func(t *testing.T) {
-		// 创建空的源码映射项目
+		// 创建空的源码映射项目。
 		emptyProject := &model.SourceMappedProject{
 			SourceMappedDependencies: []*model.SourceMappedDependency{},
 			SourceMappedPlugins:      []*model.SourceMappedPlugin{},
@@ -360,25 +360,25 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 
 		editor := NewGradleEditor(emptyProject)
 
-		// 尝试更新不存在的依赖
+		// 尝试更新不存在的依赖。
 		err := editor.UpdateDependencyVersion("group", "name", "1.0.0")
 		if err == nil {
 			t.Error("Should return error for non-existent dependency in empty project")
 		}
 
-		// 尝试更新不存在的插件
+		// 尝试更新不存在的插件。
 		err = editor.UpdatePluginVersion("plugin", "1.0.0")
 		if err == nil {
 			t.Error("Should return error for non-existent plugin in empty project")
 		}
 
-		// 尝试更新不存在的属性
+		// 尝试更新不存在的属性。
 		err = editor.UpdateProperty("property", "value")
 		if err == nil {
 			t.Error("Should return error for non-existent property in empty project")
 		}
 
-		// 尝试添加依赖到不存在的dependencies块
+		// 尝试添加依赖到不存在的dependencies块。
 		err = editor.AddDependency("group", "name", "1.0.0", "implementation")
 		if err == nil {
 			t.Error("Should return error when dependencies block not found")
@@ -386,10 +386,10 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	})
 
 	t.Run("Nil project", func(t *testing.T) {
-		// 测试nil项目的处理
+		// 测试nil项目的处理。
 		editor := NewGradleEditor(nil)
 
-		// 所有操作都应该返回错误或安全处理
+		// 所有操作都应该返回错误或安全处理。
 		err := editor.UpdateDependencyVersion("group", "name", "1.0.0")
 		if err == nil {
 			t.Error("Should handle nil project gracefully")
@@ -397,7 +397,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	})
 
 	t.Run("Duplicate dependencies", func(t *testing.T) {
-		// 创建包含重复依赖的项目
+		// 创建包含重复依赖的项目。
 		duplicateProject := &model.SourceMappedProject{
 			SourceMappedDependencies: []*model.SourceMappedDependency{
 				{
@@ -438,7 +438,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 
 		editor := NewGradleEditor(duplicateProject)
 
-		// 更新第一个匹配的依赖
+		// 更新第一个匹配的依赖。
 		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", "8.0.30")
 		if err != nil {
 			t.Fatalf("Should be able to update first matching dependency: %v", err)
@@ -453,7 +453,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	t.Run("Very long values", func(t *testing.T) {
 		editor := createTestEditor(t)
 
-		// 尝试设置非常长的版本号
+		// 尝试设置非常长的版本号。
 		longVersion := strings.Repeat("1.0.0-", 100) + "SNAPSHOT"
 		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", longVersion)
 		if err != nil {
@@ -473,7 +473,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	t.Run("Special characters in values", func(t *testing.T) {
 		editor := createTestEditor(t)
 
-		// 测试包含特殊字符的版本号
+		// 测试包含特殊字符的版本号。
 		specialVersion := "1.0.0-测试版本-🚀-ñ"
 		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", specialVersion)
 		if err != nil {
@@ -493,7 +493,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	t.Run("Empty values", func(t *testing.T) {
 		editor := createTestEditor(t)
 
-		// 测试空版本号
+		// 测试空版本号。
 		err := editor.UpdateDependencyVersion("mysql", "mysql-connector-java", "")
 		if err != nil {
 			t.Fatalf("Should handle empty version: %v", err)
@@ -508,7 +508,7 @@ func TestGradleEditorEdgeCases(t *testing.T) {
 	t.Run("Case sensitivity", func(t *testing.T) {
 		editor := createTestEditor(t)
 
-		// 测试大小写敏感性
+		// 测试大小写敏感性。
 		err := editor.UpdateDependencyVersion("MYSQL", "mysql-connector-java", "8.0.30")
 		if err == nil {
 			t.Error("Should be case sensitive for group names")

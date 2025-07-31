@@ -20,13 +20,13 @@ func TestNewDependencyParser(t *testing.T) {
 func TestParseDependencyBlock(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Test with nil block
+	// Test with nil block。
 	_, err := parser.ParseDependencyBlock(nil)
 	if err == nil {
 		t.Error("ParseDependencyBlock() should return error for nil block")
 	}
 
-	// Test with dependencies in standard scopes
+	// Test with dependencies in standard scopes。
 	block := &model.ScriptBlock{
 		Name: "dependencies",
 		Closures: map[string][]*model.ScriptBlock{
@@ -56,7 +56,7 @@ func TestParseDependencyBlock(t *testing.T) {
 		t.Errorf("ParseDependencyBlock() returned %v dependencies, want 2", len(deps))
 	}
 
-	// Verify the dependencies
+	// Verify the dependencies。
 	var foundSpring, foundJunit bool
 	for _, dep := range deps {
 		if dep.Group == "org.springframework" && dep.Name == "spring-core" && dep.Version == "5.3.10" && dep.Scope == "implementation" {
@@ -74,7 +74,7 @@ func TestParseDependencyBlock(t *testing.T) {
 		t.Error("ParseDependencyBlock() did not find JUnit dependency")
 	}
 
-	// Test with custom scope
+	// Test with custom scope。
 	customBlock := &model.ScriptBlock{
 		Name: "dependencies",
 		Closures: map[string][]*model.ScriptBlock{
@@ -97,7 +97,7 @@ func TestParseDependencyBlock(t *testing.T) {
 		t.Errorf("ParseDependencyBlock() with custom scope returned %v dependencies, want 1", len(deps))
 	}
 
-	// Verify the custom scope dependency
+	// Verify the custom scope dependency。
 	if deps[0].Group != "com.google.guava" || deps[0].Name != "guava" || deps[0].Version != "31.1-jre" || deps[0].Scope != "customScope" {
 		t.Errorf("Custom scope dependency not parsed correctly: %+v", deps[0])
 	}
@@ -106,7 +106,7 @@ func TestParseDependencyBlock(t *testing.T) {
 func TestParseScopedDependencies(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Create a block with implementation dependencies
+	// Create a block with implementation dependencies。
 	block := &model.ScriptBlock{
 		Name: "dependencies",
 		Closures: map[string][]*model.ScriptBlock{
@@ -130,14 +130,14 @@ func TestParseScopedDependencies(t *testing.T) {
 		t.Errorf("parseScopedDependencies() returned %v dependencies, want 2", len(deps))
 	}
 
-	// Verify scope is set correctly
+	// Verify scope is set correctly。
 	for _, dep := range deps {
 		if dep.Scope != "implementation" {
 			t.Errorf("Dependency scope incorrect, got %s, want implementation", dep.Scope)
 		}
 	}
 
-	// Test with non-existent scope
+	// Test with non-existent scope。
 	deps, err = parser.parseScopedDependencies(block, "nonexistentScope")
 	if err != nil {
 		t.Fatalf("parseScopedDependencies() with non-existent scope error = %v", err)
@@ -151,7 +151,7 @@ func TestParseScopedDependencies(t *testing.T) {
 func TestParseCustomDependencies(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Create a block with custom dependencies
+	// Create a block with custom dependencies。
 	block := &model.ScriptBlock{
 		Values: map[string]interface{}{
 			"'org.springframework:spring-core:5.3.10'": "'org.springframework:spring-core:5.3.10'",
@@ -168,7 +168,7 @@ func TestParseCustomDependencies(t *testing.T) {
 		t.Errorf("parseCustomDependencies() returned %v dependencies, want 2", len(deps))
 	}
 
-	// Verify scope is set correctly and dependencies are parsed correctly
+	// Verify scope is set correctly and dependencies are parsed correctly。
 	var foundSpring, foundProject bool
 	for _, dep := range deps {
 		if dep.Scope != "customScope" {
@@ -306,13 +306,13 @@ func TestParseDependencyString(t *testing.T) {
 func TestExtractDependenciesFromText(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Test with empty text
+	// Test with empty text。
 	deps := parser.ExtractDependenciesFromText("")
 	if len(deps) != 0 {
 		t.Errorf("ExtractDependenciesFromText() with empty text returned %v dependencies, want 0", len(deps))
 	}
 
-	// Test with dependencies in text
+	// Test with dependencies in text。
 	text := `dependencies {
 		implementation 'org.springframework:spring-core:5.3.10'
 		testImplementation 'junit:junit:4.13.2'
@@ -324,7 +324,7 @@ func TestExtractDependenciesFromText(t *testing.T) {
 		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want at least 3", len(deps))
 	}
 
-	// Verify extraction of specific dependency types
+	// Verify extraction of specific dependency types。
 	var foundSpring, foundJunit, foundProject bool
 	for _, dep := range deps {
 		if dep.Group == "org.springframework" && dep.Name == "spring-core" && dep.Version == "5.3.10" {
@@ -363,7 +363,7 @@ func TestExtractDependenciesFromText2(t *testing.T) {
 		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want at least 3", len(deps))
 	}
 
-	// Verify extraction of specific dependency types
+	// Verify extraction of specific dependency types。
 	var foundSpringBootStarterWeb bool
 	var foundSpringBootStarterDataJpa bool
 	var foundMysqlConnectorJava bool
@@ -435,13 +435,13 @@ func TestExtractDependenciesFromText2(t *testing.T) {
 func TestExtractDependenciesFromTextURLs(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Test with empty text
+	// Test with empty text。
 	deps := parser.ExtractDependenciesFromText("")
 	if len(deps) != 0 {
 		t.Errorf("ExtractDependenciesFromText() with empty text returned %v dependencies, want 0", len(deps))
 	}
 
-	// Test with dependencies in text
+	// Test with dependencies in text。
 	text := `dependencies {
 		implementation 'org.springframework:spring-core:5.3.10'
 		testImplementation 'junit:junit:4.13.2'
@@ -497,7 +497,7 @@ nexusPublishing {
 }`
 
 	deps = parser.ExtractDependenciesFromText(text)
-	// Verify extraction of specific dependency types
+	// Verify extraction of specific dependency types。
 	for _, dep := range deps {
 		if strings.Contains(dep.Group, "github.com") ||
 			strings.Contains(dep.Name, "github.com") ||
@@ -511,34 +511,34 @@ nexusPublishing {
 func TestGroupDependenciesByScope(t *testing.T) {
 	parser := NewDependencyParser()
 
-	// Create a list of dependencies with different scopes
+	// Create a list of dependencies with different scopes。
 	deps := []*model.Dependency{
 		{Group: "org.springframework", Name: "spring-core", Version: "5.3.10", Scope: "implementation"},
 		{Group: "junit", Name: "junit", Version: "4.13.2", Scope: "testImplementation"},
 		{Group: "com.google.guava", Name: "guava", Version: "31.1-jre", Scope: "implementation"},
 		{Group: "org.mockito", Name: "mockito-core", Version: "4.0.0", Scope: "testImplementation"},
 		{Name: "app", Scope: "implementation", Raw: "project(':app')"},
-		{Group: "no.scope", Name: "dep", Version: "1.0"}, // No scope
+		{Group: "no.scope", Name: "dep", Version: "1.0"}, // No scope。
 	}
 
 	sets := parser.GroupDependenciesByScope(deps)
 
-	// Verify we have 2 sets: implementation and testImplementation
+	// Verify we have 2 sets: implementation and testImplementation。
 	if len(sets) != 2 {
 		t.Errorf("GroupDependenciesByScope() returned %v sets, want 2", len(sets))
 		return
 	}
 
-	// Verify each scope's dependency count
+	// Verify each scope's dependency count。
 	for _, set := range sets {
 		switch set.Scope {
 		case "implementation":
-			// Should have 4 dependencies: 3 explicit + 1 default no-scope
+			// Should have 4 dependencies: 3 explicit + 1 default no-scope。
 			if len(set.Dependencies) != 4 {
 				t.Errorf("Implementation scope set has %v dependencies, want 4", len(set.Dependencies))
 			}
 		case "testImplementation":
-			// Should have 2 dependencies
+			// Should have 2 dependencies。
 			if len(set.Dependencies) != 2 {
 				t.Errorf("TestImplementation scope set has %v dependencies, want 2", len(set.Dependencies))
 			}

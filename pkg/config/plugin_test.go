@@ -16,13 +16,13 @@ func TestNewPluginParser(t *testing.T) {
 func TestParsePluginBlock(t *testing.T) {
 	parser := NewPluginParser()
 
-	// Test with nil block
+	// Test with nil block。
 	_, err := parser.ParsePluginBlock(nil)
 	if err == nil {
 		t.Error("ParsePluginBlock() should return error for nil block")
 	}
 
-	// Test with plugin declarations
+	// Test with plugin declarations。
 	block := &model.ScriptBlock{
 		Name: "plugins",
 		Values: map[string]interface{}{
@@ -42,7 +42,7 @@ func TestParsePluginBlock(t *testing.T) {
 		t.Errorf("ParsePluginBlock() returned %v plugins, want 3", len(plugins))
 	}
 
-	// Verify that plugin IDs and versions are correctly parsed
+	// Verify that plugin IDs and versions are correctly parsed。
 	var foundJava, foundAndroid, foundKotlin bool
 	for _, plugin := range plugins {
 		switch plugin.ID {
@@ -74,7 +74,7 @@ func TestParsePluginBlock(t *testing.T) {
 		t.Error("ParsePluginBlock() did not find kotlin plugin")
 	}
 
-	// Test with id closures
+	// Test with id closures。
 	idClosureBlock := &model.ScriptBlock{
 		Values: map[string]interface{}{
 			"spring-boot": "spring-boot",
@@ -96,13 +96,13 @@ func TestParsePluginBlock(t *testing.T) {
 func TestExtractPluginsFromText(t *testing.T) {
 	parser := NewPluginParser()
 
-	// Test with empty text
+	// Test with empty text。
 	plugins := parser.ExtractPluginsFromText("")
 	if len(plugins) != 0 {
 		t.Errorf("ExtractPluginsFromText() with empty text returned %v plugins, want 0", len(plugins))
 	}
 
-	// Test with plugin declarations and apply statements
+	// Test with plugin declarations and apply statements。
 	text := `plugins {
 		id 'java'
 		id 'com.android.application' version '7.0.0'
@@ -115,7 +115,7 @@ func TestExtractPluginsFromText(t *testing.T) {
 		t.Errorf("ExtractPluginsFromText() returned %v plugins, want 3", len(plugins))
 	}
 
-	// Verify the plugins
+	// Verify the plugins。
 	var foundJava, foundAndroid, foundKotlin bool
 	for _, plugin := range plugins {
 		switch plugin.ID {
@@ -145,7 +145,7 @@ func TestExtractPluginsFromText(t *testing.T) {
 func TestGetPluginConfigurations(t *testing.T) {
 	parser := NewPluginParser()
 
-	// Create a root block with some plugin configurations
+	// Create a root block with some plugin configurations。
 	rootBlock := &model.ScriptBlock{
 		Name: "root",
 		Closures: map[string][]*model.ScriptBlock{
@@ -168,7 +168,7 @@ func TestGetPluginConfigurations(t *testing.T) {
 		},
 	}
 
-	// Create a list of plugins
+	// Create a list of plugins。
 	plugins := []*model.Plugin{
 		{ID: "com.android.application"},
 		{ID: "kotlin"},
@@ -180,7 +180,7 @@ func TestGetPluginConfigurations(t *testing.T) {
 		t.Errorf("GetPluginConfigurations() returned %v configs, want 2", len(configs))
 	}
 
-	// Check for android config
+	// Check for android config。
 	androidConfig, hasAndroid := configs["com.android.application"]
 	if !hasAndroid {
 		t.Error("GetPluginConfigurations() did not find android config")
@@ -188,7 +188,7 @@ func TestGetPluginConfigurations(t *testing.T) {
 		t.Errorf("Android config has wrong name, got %s", androidConfig.Name)
 	}
 
-	// Check for kotlin config
+	// Check for kotlin config。
 	kotlinConfig, hasKotlin := configs["kotlin"]
 	if !hasKotlin {
 		t.Error("GetPluginConfigurations() did not find kotlin config")

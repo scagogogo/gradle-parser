@@ -12,7 +12,7 @@ func TestSourcePosition(t *testing.T) {
 		EndPos:   110,
 		Length:   10,
 	}
-	
+
 	expected := "line 10, col 5"
 	if pos.String() != expected {
 		t.Errorf("Expected '%s', got '%s'", expected, pos.String())
@@ -22,12 +22,12 @@ func TestSourcePosition(t *testing.T) {
 func TestSourceRange(t *testing.T) {
 	start := SourcePosition{Line: 10, Column: 5}
 	end := SourcePosition{Line: 10, Column: 15}
-	
+
 	sourceRange := SourceRange{
 		Start: start,
 		End:   end,
 	}
-	
+
 	expected := "line 10, col 5 - line 10, col 15"
 	if sourceRange.String() != expected {
 		t.Errorf("Expected '%s', got '%s'", expected, sourceRange.String())
@@ -40,11 +40,11 @@ func TestSourceMappedProject_GetLineText(t *testing.T) {
 		"line 2",
 		"line 3",
 	}
-	
+
 	project := &SourceMappedProject{
 		Lines: lines,
 	}
-	
+
 	tests := []struct {
 		lineNumber int
 		expected   string
@@ -52,11 +52,11 @@ func TestSourceMappedProject_GetLineText(t *testing.T) {
 		{1, "line 1"},
 		{2, "line 2"},
 		{3, "line 3"},
-		{0, ""},     // invalid line number
-		{4, ""},     // line number out of range
-		{-1, ""},    // negative line number
+		{0, ""},  // invalid line number。
+		{4, ""},  // line number out of range。
+		{-1, ""}, // negative line number。
 	}
-	
+
 	for _, tt := range tests {
 		result := project.GetLineText(tt.lineNumber)
 		if result != tt.expected {
@@ -67,11 +67,11 @@ func TestSourceMappedProject_GetLineText(t *testing.T) {
 
 func TestSourceMappedProject_GetTextRange(t *testing.T) {
 	originalText := "Hello, World!\nThis is line 2\nAnd line 3"
-	
+
 	project := &SourceMappedProject{
 		OriginalText: originalText,
 	}
-	
+
 	tests := []struct {
 		name        string
 		sourceRange SourceRange
@@ -110,7 +110,7 @@ func TestSourceMappedProject_GetTextRange(t *testing.T) {
 			expected: "",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := project.GetTextRange(tt.sourceRange)
@@ -122,7 +122,7 @@ func TestSourceMappedProject_GetTextRange(t *testing.T) {
 }
 
 func TestSourceMappedProject_FindDependencyByPosition(t *testing.T) {
-	// 创建测试依赖
+	// 创建测试依赖。
 	dep1 := &SourceMappedDependency{
 		Dependency: &Dependency{Group: "com.example", Name: "lib1"},
 		SourceRange: SourceRange{
@@ -130,7 +130,7 @@ func TestSourceMappedProject_FindDependencyByPosition(t *testing.T) {
 			End:   SourcePosition{Line: 5, Column: 30},
 		},
 	}
-	
+
 	dep2 := &SourceMappedDependency{
 		Dependency: &Dependency{Group: "org.test", Name: "lib2"},
 		SourceRange: SourceRange{
@@ -138,11 +138,11 @@ func TestSourceMappedProject_FindDependencyByPosition(t *testing.T) {
 			End:   SourcePosition{Line: 8, Column: 25},
 		},
 	}
-	
+
 	project := &SourceMappedProject{
 		SourceMappedDependencies: []*SourceMappedDependency{dep1, dep2},
 	}
-	
+
 	tests := []struct {
 		name     string
 		line     int
@@ -180,7 +180,7 @@ func TestSourceMappedProject_FindDependencyByPosition(t *testing.T) {
 			expected: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := project.FindDependencyByPosition(tt.line, tt.column)
@@ -192,7 +192,7 @@ func TestSourceMappedProject_FindDependencyByPosition(t *testing.T) {
 }
 
 func TestSourceMappedProject_FindPluginByPosition(t *testing.T) {
-	// 创建测试插件
+	// 创建测试插件。
 	plugin1 := &SourceMappedPlugin{
 		Plugin: &Plugin{ID: "java"},
 		SourceRange: SourceRange{
@@ -200,7 +200,7 @@ func TestSourceMappedProject_FindPluginByPosition(t *testing.T) {
 			End:   SourcePosition{Line: 2, Column: 15},
 		},
 	}
-	
+
 	plugin2 := &SourceMappedPlugin{
 		Plugin: &Plugin{ID: "org.springframework.boot"},
 		SourceRange: SourceRange{
@@ -208,11 +208,11 @@ func TestSourceMappedProject_FindPluginByPosition(t *testing.T) {
 			End:   SourcePosition{Line: 3, Column: 45},
 		},
 	}
-	
+
 	project := &SourceMappedProject{
 		SourceMappedPlugins: []*SourceMappedPlugin{plugin1, plugin2},
 	}
-	
+
 	tests := []struct {
 		name     string
 		line     int
@@ -238,7 +238,7 @@ func TestSourceMappedProject_FindPluginByPosition(t *testing.T) {
 			expected: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := project.FindPluginByPosition(tt.line, tt.column)
@@ -250,21 +250,21 @@ func TestSourceMappedProject_FindPluginByPosition(t *testing.T) {
 }
 
 func TestSourceMappedProject_FindPropertyByKey(t *testing.T) {
-	// 创建测试属性
+	// 创建测试属性。
 	prop1 := &SourceMappedProperty{
 		Key:   "group",
 		Value: "com.example",
 	}
-	
+
 	prop2 := &SourceMappedProperty{
 		Key:   "version",
 		Value: "1.0.0",
 	}
-	
+
 	project := &SourceMappedProject{
 		SourceMappedProperties: []*SourceMappedProperty{prop1, prop2},
 	}
-	
+
 	tests := []struct {
 		name     string
 		key      string
@@ -286,7 +286,7 @@ func TestSourceMappedProject_FindPropertyByKey(t *testing.T) {
 			expected: nil,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := project.FindPropertyByKey(tt.key)
@@ -304,36 +304,36 @@ func TestSourceMappedDependency(t *testing.T) {
 		Version: "1.0.0",
 		Scope:   "implementation",
 	}
-	
+
 	sourceRange := SourceRange{
 		Start: SourcePosition{Line: 10, Column: 5, StartPos: 100},
 		End:   SourcePosition{Line: 10, Column: 35, StartPos: 130},
 	}
-	
+
 	sourceMappedDep := &SourceMappedDependency{
 		Dependency:  dep,
 		SourceRange: sourceRange,
 		RawText:     "implementation 'com.example:test-lib:1.0.0'",
 	}
-	
-	// 验证依赖信息
+
+	// 验证依赖信息。
 	if sourceMappedDep.Group != "com.example" {
 		t.Errorf("Expected group 'com.example', got '%s'", sourceMappedDep.Group)
 	}
-	
+
 	if sourceMappedDep.Name != "test-lib" {
 		t.Errorf("Expected name 'test-lib', got '%s'", sourceMappedDep.Name)
 	}
-	
+
 	if sourceMappedDep.Version != "1.0.0" {
 		t.Errorf("Expected version '1.0.0', got '%s'", sourceMappedDep.Version)
 	}
-	
-	// 验证源码位置信息
+
+	// 验证源码位置信息。
 	if sourceMappedDep.SourceRange.Start.Line != 10 {
 		t.Errorf("Expected start line 10, got %d", sourceMappedDep.SourceRange.Start.Line)
 	}
-	
+
 	if sourceMappedDep.RawText != "implementation 'com.example:test-lib:1.0.0'" {
 		t.Errorf("Expected raw text to match, got '%s'", sourceMappedDep.RawText)
 	}
@@ -345,28 +345,28 @@ func TestSourceMappedPlugin(t *testing.T) {
 		Version: "2.7.0",
 		Apply:   true,
 	}
-	
+
 	sourceRange := SourceRange{
 		Start: SourcePosition{Line: 3, Column: 5, StartPos: 50},
 		End:   SourcePosition{Line: 3, Column: 45, StartPos: 90},
 	}
-	
+
 	sourceMappedPlugin := &SourceMappedPlugin{
 		Plugin:      plugin,
 		SourceRange: sourceRange,
 		RawText:     "id 'org.springframework.boot' version '2.7.0'",
 	}
-	
-	// 验证插件信息
+
+	// 验证插件信息。
 	if sourceMappedPlugin.ID != "org.springframework.boot" {
 		t.Errorf("Expected ID 'org.springframework.boot', got '%s'", sourceMappedPlugin.ID)
 	}
-	
+
 	if sourceMappedPlugin.Version != "2.7.0" {
 		t.Errorf("Expected version '2.7.0', got '%s'", sourceMappedPlugin.Version)
 	}
-	
-	// 验证源码位置信息
+
+	// 验证源码位置信息。
 	if sourceMappedPlugin.SourceRange.Start.Line != 3 {
 		t.Errorf("Expected start line 3, got %d", sourceMappedPlugin.SourceRange.Start.Line)
 	}

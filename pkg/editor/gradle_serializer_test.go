@@ -49,7 +49,7 @@ func TestGradleSerializer_ApplyModifications(t *testing.T) {
 				if strings.Contains(result, "0.1.0-SNAPSHOT") {
 					t.Errorf("Result should not contain old version")
 				}
-				// 验证其他内容保持不变
+				// 验证其他内容保持不变。
 				if !strings.Contains(result, "id 'java'") {
 					t.Errorf("Other content should remain unchanged")
 				}
@@ -105,7 +105,7 @@ func TestGradleSerializer_ApplyModifications(t *testing.T) {
 				if !strings.Contains(result, "commons-text") {
 					t.Errorf("Result should contain inserted dependency")
 				}
-				// 验证原始内容仍然存在
+				// 验证原始内容仍然存在。
 				if !strings.Contains(result, "mysql:mysql-connector-java") {
 					t.Errorf("Original content should be preserved")
 				}
@@ -129,7 +129,7 @@ func TestGradleSerializer_ApplyModifications(t *testing.T) {
 				if strings.Contains(result, "version = '0.1.0-SNAPSHOT'") {
 					t.Errorf("Deleted content should not be present")
 				}
-				// 验证其他内容仍然存在
+				// 验证其他内容仍然存在。
 				if !strings.Contains(result, "group = 'com.example'") {
 					t.Errorf("Other content should be preserved")
 				}
@@ -163,12 +163,12 @@ func TestGradleSerializer_ApplyModifications(t *testing.T) {
 }
 
 func TestGradleSerializer_MinimalDiff(t *testing.T) {
-	// 测试最小diff的核心功能
+	// 测试最小diff的核心功能。
 	t.Run("Minimal diff validation", func(t *testing.T) {
 		original := testSerializerContent
 		serializer := NewGradleSerializer(original)
 
-		// 创建一个简单的替换修改
+		// 创建一个简单的替换修改。
 		versionStart := strings.Index(original, "version = '0.1.0-SNAPSHOT'")
 		versionEnd := versionStart + len("version = '0.1.0-SNAPSHOT'")
 		modifications := []Modification{
@@ -188,7 +188,7 @@ func TestGradleSerializer_MinimalDiff(t *testing.T) {
 			t.Fatalf("Failed to apply modifications: %v", err)
 		}
 
-		// 计算实际的diff
+		// 计算实际的diff。
 		originalLines := strings.Split(original, "\n")
 		resultLines := strings.Split(result, "\n")
 
@@ -196,7 +196,7 @@ func TestGradleSerializer_MinimalDiff(t *testing.T) {
 			t.Errorf("Line count should remain the same. Original: %d, Result: %d", len(originalLines), len(resultLines))
 		}
 
-		// 计算变更的行数
+		// 计算变更的行数。
 		changedLines := 0
 		for i := 0; i < len(originalLines) && i < len(resultLines); i++ {
 			if originalLines[i] != resultLines[i] {
@@ -204,12 +204,12 @@ func TestGradleSerializer_MinimalDiff(t *testing.T) {
 			}
 		}
 
-		// 应该只有一行发生变更
+		// 应该只有一行发生变更。
 		if changedLines != 1 {
 			t.Errorf("Expected exactly 1 changed line, got %d", changedLines)
 		}
 
-		// 验证变更的行包含新版本
+		// 验证变更的行包含新版本。
 		foundNewVersion := false
 		for _, line := range resultLines {
 			if strings.Contains(line, "version = '1.0.0'") {
@@ -333,11 +333,11 @@ func TestGradleSerializer_GenerateDiff(t *testing.T) {
 
 	diffLines := serializer.GenerateDiff(modifications)
 
-	if len(diffLines) != 3 { // 1 remove + 1 add + 1 add
+	if len(diffLines) != 3 { // 1 remove + 1 add + 1 add。
 		t.Errorf("Expected 3 diff lines, got %d", len(diffLines))
 	}
 
-	// 验证diff内容
+	// 验证diff内容。
 	foundRemove := false
 	foundAdd := false
 

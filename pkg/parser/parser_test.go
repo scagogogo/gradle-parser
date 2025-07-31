@@ -21,9 +21,9 @@ func TestNewParser(t *testing.T) {
 func TestParseBasic(t *testing.T) {
 	parser := NewParser()
 
-	// Test parsing a basic Gradle content
+	// Test parsing a basic Gradle content。
 	content := `
-		// Basic Gradle file
+		// Basic Gradle file。
 		group = 'com.example'
 		version = '1.0.0'
 		description = 'Test project'
@@ -42,24 +42,24 @@ func TestParseBasic(t *testing.T) {
 		t.Fatal("Parse() returned nil project")
 	}
 
-	// Confirm parse time is set
+	// Confirm parse time is set。
 	if result.ParseTime == "" {
 		t.Error("Parse() did not set ParseTime")
 	}
 
-	// Since parseLine is implemented as a no-op, we can't expect properties to be populated
-	// When parseLine is implemented, we can add assertions like:
-	// if result.Project.Group != "com.example" {
-	//     t.Errorf("Parse() did not set Group correctly, got %s", result.Project.Group)
-	// }
+	// Since parseLine is implemented as a no-op, we can't expect properties to be populated。
+	// When parseLine is implemented, we can add assertions like:。
+	// if result.Project.Group != "com.example" {。
+	//     t.Errorf("Parse() did not set Group correctly, got %s", result.Project.Group)。
+	// }。
 }
 
 func TestParseFile(t *testing.T) {
 	parser := NewParser()
 
-	// Create a temporary Gradle file
+	// Create a temporary Gradle file。
 	content := `
-		// Sample build.gradle
+		// Sample build.gradle。
 		group = 'com.example'
 		version = '1.0.0'
 	`
@@ -75,7 +75,7 @@ func TestParseFile(t *testing.T) {
 	}
 	tmpFile.Close()
 
-	// Parse the file
+	// Parse the file。
 	result, err := parser.ParseFile(tmpFile.Name())
 	if err != nil {
 		t.Fatalf("ParseFile() error = %v", err)
@@ -89,12 +89,12 @@ func TestParseFile(t *testing.T) {
 		t.Fatal("ParseFile() returned nil project")
 	}
 
-	// Check that file path is set
+	// Check that file path is set。
 	if result.Project.FilePath != tmpFile.Name() {
 		t.Errorf("ParseFile() did not set FilePath correctly, got %s, want %s", result.Project.FilePath, tmpFile.Name())
 	}
 
-	// Test with non-existent file
+	// Test with non-existent file。
 	_, err = parser.ParseFile("/path/to/nonexistent/file.gradle")
 	if err == nil {
 		t.Error("ParseFile() with non-existent file should return error")
@@ -105,7 +105,7 @@ func TestParseReader(t *testing.T) {
 	parser := NewParser()
 
 	content := `
-		// Sample build.gradle from reader
+		// Sample build.gradle from reader。
 		group = 'com.example'
 		version = '1.0.0'
 	`
@@ -173,9 +173,9 @@ func TestWithParseTasks(t *testing.T) {
 	}
 }
 
-// Test that ParseOptions are correctly applied
+// Test that ParseOptions are correctly applied。
 func TestParseWithOptions(t *testing.T) {
-	// Create a parser with all options disabled
+	// Create a parser with all options disabled。
 	parser := &GradleParser{}
 	parser = parser.WithSkipComments(false).
 		WithCollectRawContent(false).
@@ -185,7 +185,7 @@ func TestParseWithOptions(t *testing.T) {
 		WithParseTasks(false)
 
 	content := `
-		// This is a comment
+		// This is a comment。
 		group = 'com.example'
 		version = '1.0.0'
 	`
@@ -195,67 +195,67 @@ func TestParseWithOptions(t *testing.T) {
 		t.Fatalf("Parse() error = %v", err)
 	}
 
-	// With collectRawContent set to false, RawText should be empty
+	// With collectRawContent set to false, RawText should be empty。
 	if result.RawText != "" {
 		t.Errorf("Parse() with collectRawContent=false returned non-empty RawText: %s", result.RawText)
 	}
 
-	// Test with collectRawContent enabled
+	// Test with collectRawContent enabled。
 	parser = parser.WithCollectRawContent(true)
 	result, err = parser.Parse(content)
 	if err != nil {
 		t.Fatalf("Parse() error = %v", err)
 	}
 
-	// With collectRawContent set to true, RawText should not be empty
+	// With collectRawContent set to true, RawText should not be empty。
 	if result.RawText == "" {
 		t.Error("Parse() with collectRawContent=true returned empty RawText")
 	}
 }
 
-// Test parseLine (currently a no-op)
+// Test parseLine (currently a no-op)。
 func TestParseLine(t *testing.T) {
 	parser := &GradleParser{}
 	project := &model.Project{}
 
-	// Since parseLine is a no-op, it should always return nil error
+	// Since parseLine is a no-op, it should always return nil error。
 	err := parser.parseLine("group = 'com.example'", 1, project)
 	if err != nil {
 		t.Errorf("parseLine() returned error: %v", err)
 	}
 }
 
-// Test for parsing with errors
+// Test for parsing with errors。
 func TestParseWithErrors(t *testing.T) {
-	// Create a new parser
+	// Create a new parser。
 	parser := &GradleParser{
 		errors: make([]error, 0),
 	}
 
-	// Add some errors to the parser
+	// Add some errors to the parser。
 	parser.errors = append(parser.errors, fmt.Errorf("test error 1"))
 	parser.errors = append(parser.errors, fmt.Errorf("test error 2"))
 
-	// Since Parse() resets errors, we need to modify it a bit
+	// Since Parse() resets errors, we need to modify it a bit。
 	content := `
 		line1
 		line2
 		line3
 	`
 
-	// Parse will reset errors, so this test is more of a sanity check
+	// Parse will reset errors, so this test is more of a sanity check。
 	result, err := parser.Parse(content)
 	if err != nil {
 		t.Fatalf("Parse() error = %v", err)
 	}
 
-	// The result should contain the project
+	// The result should contain the project。
 	if result.Project == nil {
 		t.Error("Parse() with errors returned nil project")
 	}
 }
 
-// 测试边界条件和错误处理
+// 测试边界条件和错误处理。
 func TestParserEdgeCases(t *testing.T) {
 	parser := NewParser()
 
@@ -284,9 +284,9 @@ func TestParserEdgeCases(t *testing.T) {
 
 	t.Run("Only comments", func(t *testing.T) {
 		content := `
-		// This is a comment
+		// This is a comment。
 		/* This is a block comment */
-		// Another comment
+		// Another comment。
 		`
 		result, err := parser.Parse(content)
 		if err != nil {
@@ -331,21 +331,21 @@ func TestParserEdgeCases(t *testing.T) {
 		description = "unclosed quote
 		`
 		result, err := parser.Parse(content)
-		// Should not fail, but may have warnings
+		// Should not fail, but may have warnings。
 		if err != nil {
 			t.Fatalf("Parse() with malformed syntax error = %v", err)
 		}
 		if result == nil {
 			t.Fatal("Parse() with malformed syntax returned nil result")
 		}
-		// Check if warnings were generated
+		// Check if warnings were generated。
 		if len(result.Warnings) == 0 {
 			t.Log("No warnings generated for malformed syntax")
 		}
 	})
 }
 
-// 测试文件解析的边界条件
+// 测试文件解析的边界条件。
 func TestParseFileEdgeCases(t *testing.T) {
 	parser := NewParser()
 
@@ -367,7 +367,7 @@ func TestParseFileEdgeCases(t *testing.T) {
 	t.Run("Empty file", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		emptyFile := filepath.Join(tmpDir, "empty.gradle")
-		err := os.WriteFile(emptyFile, []byte(""), 0644)
+		err := os.WriteFile(emptyFile, []byte(""), 0o644)
 		if err != nil {
 			t.Fatalf("Failed to create empty file: %v", err)
 		}
@@ -385,7 +385,7 @@ func TestParseFileEdgeCases(t *testing.T) {
 		tmpDir := t.TempDir()
 		largeFile := filepath.Join(tmpDir, "large.gradle")
 
-		// Create a large file with many dependencies
+		// Create a large file with many dependencies。
 		var content strings.Builder
 		content.WriteString("dependencies {\n")
 		for i := 0; i < 1000; i++ {
@@ -393,7 +393,7 @@ func TestParseFileEdgeCases(t *testing.T) {
 		}
 		content.WriteString("}\n")
 
-		err := os.WriteFile(largeFile, []byte(content.String()), 0644)
+		err := os.WriteFile(largeFile, []byte(content.String()), 0o644)
 		if err != nil {
 			t.Fatalf("Failed to create large file: %v", err)
 		}
@@ -408,23 +408,28 @@ func TestParseFileEdgeCases(t *testing.T) {
 	})
 
 	t.Run("File with permission issues", func(t *testing.T) {
+		// Skip this test if running as root (common in Docker containers)
+		if os.Getuid() == 0 {
+			t.Skip("Skipping permission test when running as root")
+		}
+
 		tmpDir := t.TempDir()
 		restrictedFile := filepath.Join(tmpDir, "restricted.gradle")
 
-		err := os.WriteFile(restrictedFile, []byte("group = 'test'"), 0644)
+		err := os.WriteFile(restrictedFile, []byte("group = 'test'"), 0o644)
 		if err != nil {
 			t.Fatalf("Failed to create restricted file: %v", err)
 		}
 
-		// Change permissions to make file unreadable
-		err = os.Chmod(restrictedFile, 0000)
+		// Change permissions to make file unreadable。
+		err = os.Chmod(restrictedFile, 0o000)
 		if err != nil {
 			t.Fatalf("Failed to change file permissions: %v", err)
 		}
 
-		// Restore permissions after test
+		// Restore permissions after test。
 		defer func() {
-			os.Chmod(restrictedFile, 0644)
+			os.Chmod(restrictedFile, 0o644)
 		}()
 
 		_, err = parser.ParseFile(restrictedFile)
@@ -434,7 +439,7 @@ func TestParseFileEdgeCases(t *testing.T) {
 	})
 }
 
-// 测试解析器配置的边界条件
+// 测试解析器配置的边界条件。
 func TestParserConfigurationEdgeCases(t *testing.T) {
 	t.Run("All options disabled", func(t *testing.T) {
 		parser := &GradleParser{}
@@ -465,7 +470,7 @@ func TestParserConfigurationEdgeCases(t *testing.T) {
 			t.Fatalf("Parse() with disabled options error = %v", err)
 		}
 
-		// Should have empty collections since parsing is disabled
+		// Should have empty collections since parsing is disabled。
 		if len(result.Project.Plugins) > 0 {
 			t.Error("Should have no plugins when plugin parsing is disabled")
 		}
@@ -483,7 +488,7 @@ func TestParserConfigurationEdgeCases(t *testing.T) {
 	t.Run("Chained configuration", func(t *testing.T) {
 		parser := &GradleParser{}
 
-		// Test method chaining
+		// Test method chaining。
 		configuredParser := parser.
 			WithSkipComments(false).
 			WithCollectRawContent(true).
@@ -496,7 +501,7 @@ func TestParserConfigurationEdgeCases(t *testing.T) {
 			t.Error("Configuration methods should return the same parser instance")
 		}
 
-		// Verify all options are set correctly
+		// Verify all options are set correctly。
 		if parser.skipComments != false {
 			t.Error("skipComments should be false")
 		}
@@ -518,7 +523,7 @@ func TestParserConfigurationEdgeCases(t *testing.T) {
 	})
 }
 
-// 性能测试
+// 性能测试。
 func TestParserPerformance(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping performance test in short mode")
@@ -526,7 +531,7 @@ func TestParserPerformance(t *testing.T) {
 
 	parser := NewParser()
 
-	// 创建一个复杂的Gradle文件内容
+	// 创建一个复杂的Gradle文件内容。
 	var content strings.Builder
 	content.WriteString(`
 plugins {
@@ -548,7 +553,7 @@ repositories {
 dependencies {
 `)
 
-	// 添加大量依赖
+	// 添加大量依赖。
 	for i := 0; i < 500; i++ {
 		content.WriteString(fmt.Sprintf("    implementation 'com.example:library%d:1.%d.0'\n", i, i%10))
 		content.WriteString(fmt.Sprintf("    testImplementation 'com.test:test-library%d:2.%d.0'\n", i, i%5))
@@ -556,7 +561,7 @@ dependencies {
 
 	content.WriteString("}\n")
 
-	// 添加大量任务
+	// 添加大量任务。
 	for i := 0; i < 100; i++ {
 		content.WriteString(fmt.Sprintf(`
 task customTask%d {
@@ -571,7 +576,7 @@ task customTask%d {
 
 	testContent := content.String()
 
-	// 测试解析时间
+	// 测试解析时间。
 	startTime := time.Now()
 	result, err := parser.Parse(testContent)
 	parseTime := time.Since(startTime)
@@ -584,7 +589,7 @@ task customTask%d {
 		t.Fatal("Performance test returned nil result")
 	}
 
-	// 验证解析结果
+	// 验证解析结果。
 	if len(result.Project.Dependencies) == 0 {
 		t.Error("Performance test should have parsed dependencies")
 	}
@@ -593,30 +598,30 @@ task customTask%d {
 		t.Error("Performance test should have parsed plugins")
 	}
 
-	// 记录性能指标
+	// 记录性能指标。
 	t.Logf("Parsed %d characters in %v", len(testContent), parseTime)
 	t.Logf("Found %d dependencies, %d plugins, %d repositories",
 		len(result.Project.Dependencies),
 		len(result.Project.Plugins),
 		len(result.Project.Repositories))
 
-	// 性能阈值检查（可根据需要调整）
+	// 性能阈值检查（可根据需要调整）。
 	if parseTime > time.Second*5 {
 		t.Errorf("Parse time %v exceeds threshold of 5 seconds", parseTime)
 	}
 }
 
-// Helper to create a temporary Gradle project for testing
+// Helper to create a temporary Gradle project for testing。
 func createTempGradleProject(t *testing.T) string {
-	// Create a temporary directory
+	// Create a temporary directory。
 	tmpDir, err := os.MkdirTemp("", "gradle-project")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Create a simple build.gradle file
+	// Create a simple build.gradle file。
 	buildGradleContent := `
-		// Sample build.gradle
+		// Sample build.gradle。
 		group = 'com.example'
 		version = '1.0.0'
 		
@@ -631,14 +636,14 @@ func createTempGradleProject(t *testing.T) string {
 	`
 
 	buildGradleFile := filepath.Join(tmpDir, "build.gradle")
-	if err := os.WriteFile(buildGradleFile, []byte(buildGradleContent), 0644); err != nil {
+	if err := os.WriteFile(buildGradleFile, []byte(buildGradleContent), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	return tmpDir
 }
 
-// Clean up the temporary Gradle project
+// Clean up the temporary Gradle project。
 func cleanupTempGradleProject(tmpDir string) {
 	os.RemoveAll(tmpDir)
 }

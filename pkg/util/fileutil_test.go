@@ -66,26 +66,26 @@ func TestIsKotlinDSL(t *testing.T) {
 }
 
 func TestFindGradleFiles(t *testing.T) {
-	// Create a temporary directory structure
+	// Create a temporary directory structure。
 	tmpDir, err := os.MkdirTemp("", "gradle-test")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// Create test files
+	// Create test files。
 	testFiles := []string{
 		filepath.Join(tmpDir, "build.gradle"),
 		filepath.Join(tmpDir, "settings.gradle"),
 		filepath.Join(tmpDir, "subdir", "build.gradle.kts"),
 	}
 
-	// Create directories
-	if err := os.Mkdir(filepath.Join(tmpDir, "subdir"), 0755); err != nil {
+	// Create directories。
+	if err := os.Mkdir(filepath.Join(tmpDir, "subdir"), 0o755); err != nil {
 		t.Fatal(err)
 	}
 
-	// Create files
+	// Create files。
 	for _, file := range testFiles {
 		f, err := os.Create(file)
 		if err != nil {
@@ -94,35 +94,35 @@ func TestFindGradleFiles(t *testing.T) {
 		f.Close()
 	}
 
-	// Run the test
+	// Run the test。
 	files, err := FindGradleFiles(tmpDir)
 	if err != nil {
 		t.Fatalf("FindGradleFiles() error = %v", err)
 	}
 
-	// Expected number of files
+	// Expected number of files。
 	if len(files) != len(testFiles) {
 		t.Errorf("FindGradleFiles() found %v files, want %v", len(files), len(testFiles))
 	}
 }
 
 func TestFindProjectRoot(t *testing.T) {
-	// Create a temporary directory structure
+	// Create a temporary directory structure。
 	tmpDir, err := os.MkdirTemp("", "gradle-test")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
-	// Create project structure
+	// Create project structure。
 	projectRoot := filepath.Join(tmpDir, "project")
 	subDir := filepath.Join(projectRoot, "subdir")
 
-	if err := os.MkdirAll(subDir, 0755); err != nil {
+	if err := os.MkdirAll(subDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
 
-	// Create build.gradle in project root
+	// Create build.gradle in project root。
 	buildFile := filepath.Join(projectRoot, "build.gradle")
 	f, err := os.Create(buildFile)
 	if err != nil {
@@ -130,7 +130,7 @@ func TestFindProjectRoot(t *testing.T) {
 	}
 	f.Close()
 
-	// Test finding project root from subdirectory
+	// Test finding project root from subdirectory。
 	root, err := FindProjectRoot(subDir)
 	if err != nil {
 		t.Fatalf("FindProjectRoot() error = %v", err)
@@ -140,7 +140,7 @@ func TestFindProjectRoot(t *testing.T) {
 		t.Errorf("FindProjectRoot() = %v, want %v", root, projectRoot)
 	}
 
-	// Test finding project root when not in a project
+	// Test finding project root when not in a project。
 	_, err = FindProjectRoot(filepath.Join(tmpDir, "not-a-project"))
 	if err == nil {
 		t.Error("FindProjectRoot() should return error when not in a project")
@@ -148,7 +148,7 @@ func TestFindProjectRoot(t *testing.T) {
 }
 
 func TestFileExists(t *testing.T) {
-	// Create a temporary file
+	// Create a temporary file。
 	tmpFile, err := os.CreateTemp("", "test-file")
 	if err != nil {
 		t.Fatal(err)
@@ -156,7 +156,7 @@ func TestFileExists(t *testing.T) {
 	tmpFile.Close()
 	defer os.Remove(tmpFile.Name())
 
-	// Create a temporary directory
+	// Create a temporary directory。
 	tmpDir, err := os.MkdirTemp("", "test-dir")
 	if err != nil {
 		t.Fatal(err)
@@ -183,7 +183,7 @@ func TestFileExists(t *testing.T) {
 }
 
 func TestGetFileContent(t *testing.T) {
-	// Create a temporary file with content
+	// Create a temporary file with content。
 	content := "test content"
 	tmpFile, err := os.CreateTemp("", "test-file")
 	if err != nil {
@@ -193,7 +193,7 @@ func TestGetFileContent(t *testing.T) {
 	tmpFile.Close()
 	defer os.Remove(tmpFile.Name())
 
-	// Test getting content from existing file
+	// Test getting content from existing file。
 	got, err := GetFileContent(tmpFile.Name())
 	if err != nil {
 		t.Fatalf("GetFileContent() error = %v", err)
@@ -202,7 +202,7 @@ func TestGetFileContent(t *testing.T) {
 		t.Errorf("GetFileContent() = %v, want %v", got, content)
 	}
 
-	// Test getting content from non-existent file
+	// Test getting content from non-existent file。
 	_, err = GetFileContent("/path/to/nonexistent/file")
 	if err == nil {
 		t.Error("GetFileContent() should return error for non-existent file")

@@ -109,7 +109,7 @@ func main() {
 
 	// 可选：将修改后的内容写入新文件
 	outputPath := "build.gradle.new"
-	if err := os.WriteFile(outputPath, []byte(finalText), 0644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(finalText), 0o644); err != nil {
 		log.Printf("写入文件失败: %v", err)
 	} else {
 		fmt.Printf("\n✅ 修改后的文件已保存到: %s\n", outputPath)

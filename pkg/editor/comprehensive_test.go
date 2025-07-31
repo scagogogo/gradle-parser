@@ -1,4 +1,4 @@
-// Package editor 提供全面的编辑器功能测试
+// Package editor 提供全面的编辑器功能测试。
 package editor
 
 import (
@@ -8,9 +8,9 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/parser"
 )
 
-// 综合测试用例：验证完整的编辑器工作流程
+// 综合测试用例：验证完整的编辑器工作流程。
 func TestComprehensiveEditorWorkflow(t *testing.T) {
-	// 测试用的Gradle文件内容
+	// 测试用的Gradle文件内容。
 	gradleContent := `plugins {
     id 'java'
     id 'org.springframework.boot' version '2.6.0'
@@ -34,14 +34,14 @@ dependencies {
 }`
 
 	t.Run("Complete workflow test", func(t *testing.T) {
-		// 1. 解析阶段
+		// 1. 解析阶段。
 		sourceAwareParser := parser.NewSourceAwareParser()
 		result, err := sourceAwareParser.ParseWithSourceMapping(gradleContent)
 		if err != nil {
 			t.Fatalf("Failed to parse content: %v", err)
 		}
 
-		// 验证解析结果
+		// 验证解析结果。
 		if result.SourceMappedProject == nil {
 			t.Fatal("SourceMappedProject should not be nil")
 		}
@@ -54,10 +54,10 @@ dependencies {
 			t.Errorf("Expected at least 2 plugins, got %d", len(result.SourceMappedProject.SourceMappedPlugins))
 		}
 
-		// 2. 编辑阶段
+		// 2. 编辑阶段。
 		editor := NewGradleEditor(result.SourceMappedProject)
 
-		// 执行多种类型的修改
+		// 执行多种类型的修改。
 		modifications := []struct {
 			name   string
 			action func() error
@@ -94,36 +94,36 @@ dependencies {
 			},
 		}
 
-		// 执行所有修改
+		// 执行所有修改。
 		for _, mod := range modifications {
 			if err := mod.action(); err != nil {
 				t.Errorf("Failed to execute %s: %v", mod.name, err)
 			}
 		}
 
-		// 验证修改操作被正确记录
+		// 验证修改操作被正确记录。
 		allModifications := editor.GetModifications()
 		expectedModifications := 5
 		if len(allModifications) != expectedModifications {
 			t.Errorf("Expected %d modifications, got %d", expectedModifications, len(allModifications))
 		}
 
-		// 3. 序列化阶段
+		// 3. 序列化阶段。
 		serializer := NewGradleSerializer(gradleContent)
 
-		// 验证修改操作的有效性
+		// 验证修改操作的有效性。
 		validationErrors := serializer.ValidateModifications(allModifications)
 		if len(validationErrors) > 0 {
 			t.Errorf("Validation errors found: %v", validationErrors)
 		}
 
-		// 应用修改
+		// 应用修改。
 		finalText, err := serializer.ApplyModifications(allModifications)
 		if err != nil {
 			t.Fatalf("Failed to apply modifications: %v", err)
 		}
 
-		// 4. 验证最小diff
+		// 4. 验证最小diff。
 		originalLines := strings.Split(gradleContent, "\n")
 		resultLines := strings.Split(finalText, "\n")
 
@@ -134,13 +134,13 @@ dependencies {
 			}
 		}
 
-		// 应该有4行被修改 + 1行新增 = 5行变化
+		// 应该有4行被修改 + 1行新增 = 5行变化。
 		expectedChanges := 5
 		if changedLines != expectedChanges {
 			t.Errorf("Expected %d changed lines, got %d", expectedChanges, changedLines)
 		}
 
-		// 5. 验证具体修改内容
+		// 5. 验证具体修改内容。
 		verifications := []struct {
 			description string
 			check       func(string) bool
@@ -183,13 +183,13 @@ dependencies {
 			}
 		}
 
-		// 6. 生成和验证diff
+		// 6. 生成和验证diff。
 		diffLines := serializer.GenerateDiff(allModifications)
 		if len(diffLines) == 0 {
 			t.Error("Should generate diff lines")
 		}
 
-		// 验证diff包含预期的修改类型
+		// 验证diff包含预期的修改类型。
 		hasReplace := false
 		hasInsert := false
 		for _, diffLine := range diffLines {
@@ -209,7 +209,7 @@ dependencies {
 			t.Error("Diff should contain insert operations")
 		}
 
-		// 7. 获取修改摘要
+		// 7. 获取修改摘要。
 		summary := serializer.GetModificationSummary(allModifications)
 		if summary.TotalModifications != expectedModifications {
 			t.Errorf("Summary should show %d modifications, got %d", expectedModifications, summary.TotalModifications)
@@ -225,7 +225,7 @@ dependencies {
 	})
 }
 
-// 测试边界情况和错误处理
+// 测试边界情况和错误处理。
 func TestEditorErrorHandling(t *testing.T) {
 	gradleContent := `plugins {
     id 'java'
@@ -247,27 +247,27 @@ dependencies {
 
 		editor := NewGradleEditor(result.SourceMappedProject)
 
-		// 测试更新不存在的依赖
+		// 测试更新不存在的依赖。
 		err = editor.UpdateDependencyVersion("non.existent", "dependency", "1.0.0")
 		if err == nil {
 			t.Error("Should return error for non-existent dependency")
 		}
 
-		// 测试更新不存在的插件
+		// 测试更新不存在的插件。
 		err = editor.UpdatePluginVersion("non.existent.plugin", "1.0.0")
 		if err == nil {
 			t.Error("Should return error for non-existent plugin")
 		}
 
-		// 测试更新不存在的属性
+		// 测试更新不存在的属性。
 		err = editor.UpdateProperty("nonExistentProperty", "value")
 		if err == nil {
 			t.Error("Should return error for non-existent property")
 		}
 
-		// 测试相同版本更新（应该不产生修改）
+		// 测试相同版本更新（应该不产生修改）。
 		initialModCount := len(editor.GetModifications())
-		err = editor.UpdateProperty("version", "1.0.0") // 相同版本
+		err = editor.UpdateProperty("version", "1.0.0") // 相同版本。
 		if err != nil {
 			t.Errorf("Should not return error for same version update: %v", err)
 		}

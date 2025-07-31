@@ -16,13 +16,13 @@ func TestNewRepositoryParser(t *testing.T) {
 func TestParseRepositoryBlock(t *testing.T) {
 	parser := NewRepositoryParser()
 
-	// Test with nil block
+	// Test with nil block。
 	_, err := parser.ParseRepositoryBlock(nil)
 	if err == nil {
 		t.Error("ParseRepositoryBlock() should return error for nil block")
 	}
 
-	// Test with predefined repository names
+	// Test with predefined repository names。
 	block := &model.ScriptBlock{
 		Name: "repositories",
 		Values: map[string]interface{}{
@@ -41,7 +41,7 @@ func TestParseRepositoryBlock(t *testing.T) {
 		t.Errorf("ParseRepositoryBlock() returned %v repositories, want 2", len(repos))
 	}
 
-	// Test with maven closures
+	// Test with maven closures。
 	mavenBlock := &model.ScriptBlock{
 		Values: map[string]interface{}{
 			"url 'https://jitpack.io'": "url 'https://jitpack.io'",
@@ -75,7 +75,7 @@ func TestParseRepositoryBlock(t *testing.T) {
 		t.Errorf("ParseRepositoryBlock() returned %v repositories, want 4", len(repos))
 	}
 
-	// Check that we correctly parsed the URL
+	// Check that we correctly parsed the URL。
 	var foundJitpack bool
 	for _, repo := range repos {
 		if repo.URL == "https://jitpack.io" {
@@ -88,7 +88,7 @@ func TestParseRepositoryBlock(t *testing.T) {
 		t.Error("ParseRepositoryBlock() did not correctly parse maven URL")
 	}
 
-	// Check that we correctly parsed credentials
+	// Check that we correctly parsed credentials。
 	var foundCredentials bool
 	for _, repo := range repos {
 		if repo.URL == "https://example.com" && repo.Username == "user" && repo.Password == "pass" {
@@ -105,13 +105,13 @@ func TestParseRepositoryBlock(t *testing.T) {
 func TestExtractRepositoriesFromText(t *testing.T) {
 	parser := NewRepositoryParser()
 
-	// Test with empty text
+	// Test with empty text。
 	repos := parser.ExtractRepositoriesFromText("")
 	if len(repos) != 0 {
 		t.Errorf("ExtractRepositoriesFromText() with empty text returned %v repositories, want 0", len(repos))
 	}
 
-	// Test with repositories block
+	// Test with repositories block。
 	text := `repositories {
 		mavenCentral()
 		maven { url 'https://jitpack.io' }
@@ -122,7 +122,7 @@ func TestExtractRepositoriesFromText(t *testing.T) {
 		t.Errorf("ExtractRepositoriesFromText() returned %v repositories, want 2", len(repos))
 	}
 
-	// Verify the repositories
+	// Verify the repositories。
 	var foundMavenCentral, foundJitpack bool
 	for _, repo := range repos {
 		if repo.Name == "mavenCentral" {
