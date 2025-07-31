@@ -1,9 +1,13 @@
 # Gradle Parser | Gradle 解析器
 
-![build](https://github.com/scagogogo/gradle-parser/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/scagogogo/gradle-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/scagogogo/gradle-parser/actions/workflows/ci.yml)
+[![Quality](https://github.com/scagogogo/gradle-parser/actions/workflows/quality.yml/badge.svg)](https://github.com/scagogogo/gradle-parser/actions/workflows/quality.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/scagogogo/gradle-parser)](https://goreportcard.com/report/github.com/scagogogo/gradle-parser)
 [![GoDoc](https://godoc.org/github.com/scagogogo/gradle-parser?status.svg)](https://pkg.go.dev/github.com/scagogogo/gradle-parser)
+[![codecov](https://codecov.io/gh/scagogogo/gradle-parser/branch/main/graph/badge.svg)](https://codecov.io/gh/scagogogo/gradle-parser)
 [![License](https://img.shields.io/github/license/scagogogo/gradle-parser)](/LICENSE)
+[![Release](https://img.shields.io/github/v/release/scagogogo/gradle-parser)](https://github.com/scagogogo/gradle-parser/releases)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/scagogogo/gradle-parser)](https://golang.org/)
 
 一个用于解析Gradle构建文件的Go库，可提取依赖信息、插件配置、仓库设置等。 
 
@@ -198,18 +202,108 @@ Check the [examples](examples/) directory for more detailed example code.
 
 Each example demonstrates different features of the library, from basic parsing to complete project analysis.
 
+## 文档 | Documentation
+
+📚 **完整文档**: [https://scagogogo.github.io/gradle-parser/](https://scagogogo.github.io/gradle-parser/)
+
+**Complete Documentation**: [https://scagogogo.github.io/gradle-parser/](https://scagogogo.github.io/gradle-parser/)
+
+- [快速开始指南 | Getting Started Guide](https://scagogogo.github.io/gradle-parser/guide/getting-started.html)
+- [API 参考 | API Reference](https://scagogogo.github.io/gradle-parser/api/)
+- [示例代码 | Examples](https://scagogogo.github.io/gradle-parser/examples/)
+- [高级功能 | Advanced Features](https://scagogogo.github.io/gradle-parser/guide/advanced-features.html)
+
+## 测试 | Testing
+
+本项目包含全面的测试套件：
+
+This project includes a comprehensive test suite:
+
+```bash
+# 运行所有测试 | Run all tests
+go test ./...
+
+# 运行测试套件 | Run test suite
+cd test && ./scripts/run-tests.sh
+
+# 运行示例 | Run examples
+cd examples && ./run-all-examples.sh
+```
+
+**测试覆盖率 | Test Coverage**: 目标 >90% | Target >90%
+
 ## 持续集成 | Continuous Integration
 
-本项目使用GitHub Actions进行持续集成，确保代码质量和功能正常。每次提交代码时，CI系统会自动：
+本项目使用GitHub Actions进行持续集成，确保代码质量和功能正常：
 
-This project uses GitHub Actions for continuous integration to ensure code quality. On each commit, the CI system automatically:
+This project uses GitHub Actions for continuous integration to ensure code quality:
 
-- 运行所有单元测试 | Runs all unit tests
-- 运行所有示例程序 | Runs all example programs
-- 确保代码能够正常构建 | Ensures the code builds correctly
+### CI 工作流 | CI Workflows
+
+- **🔄 CI**: 多Go版本测试、代码检查、示例验证
+- **📊 Quality**: 代码覆盖率、安全扫描、复杂度分析
+- **📚 Docs**: 文档构建和部署
+- **🚀 Release**: 自动发布和资产构建
+
+### 质量保证 | Quality Assurance
+
+- ✅ 单元测试和集成测试 | Unit and integration tests
+- 🔍 代码质量检查 (golangci-lint) | Code quality checks
+- 🛡️ 安全漏洞扫描 | Security vulnerability scanning
+- 📈 性能基准测试 | Performance benchmarking
+- 📝 文档链接验证 | Documentation link validation
+
+## 贡献 | Contributing
+
+欢迎贡献代码！请查看 [贡献指南](CONTRIBUTING.md) 了解详情。
+
+Contributions are welcome! Please see the [Contributing Guide](CONTRIBUTING.md) for details.
+
+### 开发环境 | Development Environment
+
+```bash
+# 克隆仓库 | Clone repository
+git clone https://github.com/scagogogo/gradle-parser.git
+cd gradle-parser
+
+# 安装依赖 | Install dependencies
+go mod download
+
+# 运行测试 | Run tests
+go test ./...
+
+# 运行示例 | Run examples
+cd examples/01_basic && go run main.go
+```
+
+### 报告问题 | Reporting Issues
+
+如果您发现了bug或有功能请求，请在 [GitHub Issues](https://github.com/scagogogo/gradle-parser/issues) 中报告。
+
+If you find a bug or have a feature request, please report it in [GitHub Issues](https://github.com/scagogogo/gradle-parser/issues).
+
+## 路线图 | Roadmap
+
+- [ ] 支持更多Gradle DSL语法 | Support more Gradle DSL syntax
+- [ ] 增强Kotlin DSL支持 | Enhanced Kotlin DSL support
+- [ ] 性能优化 | Performance optimizations
+- [ ] 更多编辑功能 | More editing capabilities
+- [ ] IDE插件支持 | IDE plugin support
 
 ## 协议 | License
 
 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
 
-MIT License - See [LICENSE](LICENSE) file for details 
+MIT License - See [LICENSE](LICENSE) file for details
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对您有帮助，请给个星标！**
+
+**⭐ If this project helps you, please give it a star!**
+
+Made with ❤️ by [scagogogo](https://github.com/scagogogo)
+
+</div>

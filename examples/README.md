@@ -1,14 +1,19 @@
-# Gradle-Parser 示例程序
+# Gradle Parser Examples / Gradle-Parser 示例程序
+
+This directory contains a series of example programs demonstrating various features of the gradle-parser library.
 
 本目录包含一系列示例程序，展示如何使用gradle-parser库的各种功能。
 
-## 示例结构
+## Example Structure / 示例结构
 
-- [01_basic](01_basic/) - 基本用法示例
-- [02_dependencies](02_dependencies/) - 依赖提取和分析示例
-- [03_plugins](03_plugins/) - 插件提取和分析示例
-- [04_repositories](04_repositories/) - 仓库提取和分析示例
-- [05_complete](05_complete/) - 完整功能和定制选项示例
+- [01_basic](01_basic/) - Basic usage examples / 基本用法示例
+- [02_dependencies](02_dependencies/) - Dependency extraction and analysis / 依赖提取和分析示例
+- [03_plugins](03_plugins/) - Plugin extraction and analysis / 插件提取和分析示例
+- [04_repositories](04_repositories/) - Repository extraction and analysis / 仓库提取和分析示例
+- [05_complete](05_complete/) - Complete functionality and custom options / 完整功能和定制选项示例
+- [06_editor](06_editor/) - Structured editing examples / 结构化编辑示例
+
+Each example directory contains a README.md file with detailed usage instructions.
 
 每个示例目录中都包含一个README.md文件，详细介绍了该示例的使用方法。
 
