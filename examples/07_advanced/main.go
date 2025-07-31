@@ -12,7 +12,7 @@ import (
 
 func main() {
 	fmt.Println("🔍 Advanced Gradle Parser Features Demo")
-	fmt.Println("========================================\n")
+	fmt.Println("========================================")
 
 	// Demonstrate source mapping
 	demonstrateSourceMapping()
