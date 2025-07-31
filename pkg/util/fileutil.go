@@ -7,24 +7,24 @@ import (
 	"strings"
 )
 
-// IsBuildGradleFile 检查文件是否是Gradle构建文件
+// IsBuildGradleFile 检查文件是否是Gradle构建文件.
 func IsBuildGradleFile(filePath string) bool {
 	fileName := filepath.Base(filePath)
 	return fileName == "build.gradle" || fileName == "build.gradle.kts"
 }
 
-// IsSettingsGradleFile 检查文件是否是Gradle设置文件
+// IsSettingsGradleFile 检查文件是否是Gradle设置文件.
 func IsSettingsGradleFile(filePath string) bool {
 	fileName := filepath.Base(filePath)
 	return fileName == "settings.gradle" || fileName == "settings.gradle.kts"
 }
 
-// IsKotlinDSL 检查文件是否使用Kotlin DSL
+// IsKotlinDSL 检查文件是否使用Kotlin DSL.
 func IsKotlinDSL(filePath string) bool {
 	return strings.HasSuffix(filePath, ".kts")
 }
 
-// FindGradleFiles 在指定目录中查找所有Gradle文件
+// FindGradleFiles 在指定目录中查找所有Gradle文件.
 func FindGradleFiles(rootDir string) ([]string, error) {
 	var files []string
 
@@ -41,7 +41,7 @@ func FindGradleFiles(rootDir string) ([]string, error) {
 	return files, err
 }
 
-// FindProjectRoot 查找包含build.gradle的项目根目录
+// FindProjectRoot 查找包含build.gradle的项目根目录.
 func FindProjectRoot(startDir string) (string, error) {
 	currentDir := startDir
 	for {
@@ -65,7 +65,7 @@ func FindProjectRoot(startDir string) (string, error) {
 	return "", os.ErrNotExist
 }
 
-// fileExists 检查文件是否存在
+// fileExists 检查文件是否存在.
 func fileExists(filePath string) bool {
 	info, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
@@ -74,7 +74,7 @@ func fileExists(filePath string) bool {
 	return !info.IsDir()
 }
 
-// GetFileContent 获取文件内容
+// GetFileContent 获取文件内容.
 func GetFileContent(filePath string) (string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {

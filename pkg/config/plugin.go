@@ -9,26 +9,37 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
 
+const (
+	// Android插件常量.
+	androidApplicationPlugin = "com.android.application"
+	androidLibraryPlugin     = "com.android.library"
+
+	// Kotlin插件常量.
+	kotlinPlugin        = "kotlin"
+	kotlinJVMPlugin     = "org.jetbrains.kotlin.jvm"
+	kotlinAndroidPlugin = "org.jetbrains.kotlin.android"
+)
+
 var (
-	// 匹配插件ID的正则表达式
+	// 匹配插件ID的正则表达式.
 	// 例如: id 'com.android.application' version '7.0.0'
 	// 或者: id("org.jetbrains.kotlin.android") version "1.5.30"
 	pluginRegex = regexp.MustCompile(`id\s*\(?['"](.*?)['"](\))?(\s+version\s*['"](.*?)['"])?`)
 
-	// 匹配apply plugin的正则表达式
+	// 匹配apply plugin的正则表达式.
 	// 例如: apply plugin: 'java'
 	applyPluginRegex = regexp.MustCompile(`apply\s+plugin:\s*['"](.*?)['"]`)
 )
 
-// PluginParser 处理Gradle插件解析
+// PluginParser 处理Gradle插件解析.
 type PluginParser struct{}
 
-// NewPluginParser 创建新的插件解析器
+// NewPluginParser 创建新的插件解析器.
 func NewPluginParser() *PluginParser {
 	return &PluginParser{}
 }
 
-// ParsePluginBlock 解析插件块
+// ParsePluginBlock 解析插件块.
 func (pp *PluginParser) ParsePluginBlock(block *model.ScriptBlock) ([]*model.Plugin, error) {
 	if block == nil {
 		return nil, fmt.Errorf("插件块为空")
@@ -74,7 +85,7 @@ func (pp *PluginParser) ParsePluginBlock(block *model.ScriptBlock) ([]*model.Plu
 	return plugins, nil
 }
 
-// ExtractPluginsFromText 从原始文本中提取插件
+// ExtractPluginsFromText 从原始文本中提取插件.
 func (pp *PluginParser) ExtractPluginsFromText(text string) []*model.Plugin {
 	plugins := make([]*model.Plugin, 0)
 
@@ -112,8 +123,11 @@ func (pp *PluginParser) ExtractPluginsFromText(text string) []*model.Plugin {
 	return plugins
 }
 
-// GetPluginConfigurations 获取插件相关的配置块
-func (pp *PluginParser) GetPluginConfigurations(rootBlock *model.ScriptBlock, plugins []*model.Plugin) map[string]*model.ScriptBlock {
+// GetPluginConfigurations 获取插件相关的配置块.
+func (pp *PluginParser) GetPluginConfigurations(
+	rootBlock *model.ScriptBlock,
+	plugins []*model.Plugin,
+) map[string]*model.ScriptBlock {
 	// 创建插件ID到配置块的映射
 	pluginConfigs := make(map[string]*model.ScriptBlock)
 
@@ -143,17 +157,17 @@ func (pp *PluginParser) GetPluginConfigurations(rootBlock *model.ScriptBlock, pl
 	return pluginConfigs
 }
 
-// IsAndroidProject 判断是否是Android项目
+// IsAndroidProject 判断是否是Android项目.
 func (pp *PluginParser) IsAndroidProject(plugins []*model.Plugin) bool {
 	for _, plugin := range plugins {
-		if plugin.ID == "com.android.application" || plugin.ID == "com.android.library" {
+		if plugin.ID == androidApplicationPlugin || plugin.ID == androidLibraryPlugin {
 			return true
 		}
 	}
 	return false
 }
 
-// IsSpringBootProject 判断是否是Spring Boot项目
+// IsSpringBootProject 判断是否是Spring Boot项目.
 func (pp *PluginParser) IsSpringBootProject(plugins []*model.Plugin) bool {
 	for _, plugin := range plugins {
 		if plugin.ID == "org.springframework.boot" {
@@ -163,11 +177,11 @@ func (pp *PluginParser) IsSpringBootProject(plugins []*model.Plugin) bool {
 	return false
 }
 
-// IsKotlinProject 判断是否是Kotlin项目
+// IsKotlinProject 判断是否是Kotlin项目.
 func (pp *PluginParser) IsKotlinProject(plugins []*model.Plugin) bool {
 	for _, plugin := range plugins {
-		if plugin.ID == "kotlin" || plugin.ID == "org.jetbrains.kotlin.jvm" ||
-			plugin.ID == "org.jetbrains.kotlin.android" {
+		if plugin.ID == kotlinPlugin || plugin.ID == kotlinJVMPlugin ||
+			plugin.ID == kotlinAndroidPlugin {
 			return true
 		}
 	}

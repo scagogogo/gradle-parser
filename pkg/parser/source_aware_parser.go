@@ -232,8 +232,12 @@ func (sap *SourceAwareParser) parseSourceMappedDependency(line string, lineNumbe
 	return fmt.Errorf("not a dependency")
 }
 
-// parseSourceMappedPlugin 解析带位置信息的插件
-func (sap *SourceAwareParser) parseSourceMappedPlugin(line string, lineNumber, lineStart int, project *model.SourceMappedProject) error {
+// parseSourceMappedPlugin 解析带位置信息的插件.
+func (sap *SourceAwareParser) parseSourceMappedPlugin(
+	line string,
+	lineNumber, lineStart int,
+	project *model.SourceMappedProject,
+) error {
 	trimmedLine := strings.TrimSpace(line)
 
 	// 使用插件解析器的正则表达式
@@ -287,8 +291,12 @@ func (sap *SourceAwareParser) parseSourceMappedPlugin(line string, lineNumber, l
 	return fmt.Errorf("not a plugin")
 }
 
-// parseSourceMappedRepository 解析带位置信息的仓库
-func (sap *SourceAwareParser) parseSourceMappedRepository(line string, lineNumber, lineStart int, project *model.SourceMappedProject) error {
+// parseSourceMappedRepository 解析带位置信息的仓库.
+func (sap *SourceAwareParser) parseSourceMappedRepository(
+	line string,
+	lineNumber, lineStart int,
+	project *model.SourceMappedProject,
+) error {
 	trimmedLine := strings.TrimSpace(line)
 
 	// 检查常见的仓库声明

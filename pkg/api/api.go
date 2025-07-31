@@ -12,7 +12,7 @@ import (
 	"github.com/scagogogo/gradle-parser/pkg/parser"
 )
 
-// 版本信息
+// 版本信息.
 const (
 	Version = "0.1.0"
 )
@@ -95,13 +95,13 @@ func IsKotlinProject(plugins []*model.Plugin) bool {
 	return pluginParser.IsKotlinProject(plugins)
 }
 
-// IsSpringBootProject 检查是否是Spring Boot项目
+// IsSpringBootProject 检查是否是Spring Boot项目.
 func IsSpringBootProject(plugins []*model.Plugin) bool {
 	pluginParser := config.NewPluginParser()
 	return pluginParser.IsSpringBootProject(plugins)
 }
 
-// Options 解析选项
+// Options 解析选项.
 type Options struct {
 	SkipComments      bool
 	CollectRawContent bool
@@ -111,7 +111,7 @@ type Options struct {
 	ParseTasks        bool
 }
 
-// DefaultOptions 创建默认选项
+// DefaultOptions 创建默认选项.
 func DefaultOptions() *Options {
 	return &Options{
 		SkipComments:      true,
@@ -123,9 +123,12 @@ func DefaultOptions() *Options {
 	}
 }
 
-// NewParser 创建自定义配置的解析器
+// NewParser 创建自定义配置的解析器.
 func NewParser(options *Options) parser.Parser {
-	p := parser.NewParser().(*parser.GradleParser)
+	p, ok := parser.NewParser().(*parser.GradleParser)
+	if !ok {
+		return parser.NewParser()
+	}
 
 	if options != nil {
 		p.WithSkipComments(options.SkipComments)
@@ -139,7 +142,7 @@ func NewParser(options *Options) parser.Parser {
 	return p
 }
 
-// ParseFileWithSourceMapping 解析文件并返回带源码位置信息的结果
+// ParseFileWithSourceMapping 解析文件并返回带源码位置信息的结果.
 func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult, error) {
 	// 读取文件内容
 	file, err := os.Open(filePath)
@@ -168,7 +171,7 @@ func ParseFileWithSourceMapping(filePath string) (*model.SourceMappedParseResult
 	return result, nil
 }
 
-// CreateGradleEditor 创建Gradle编辑器
+// CreateGradleEditor 创建Gradle编辑器.
 func CreateGradleEditor(filePath string) (*editor.GradleEditor, error) {
 	// 解析文件获取源码位置信息
 	result, err := ParseFileWithSourceMapping(filePath)
@@ -180,7 +183,7 @@ func CreateGradleEditor(filePath string) (*editor.GradleEditor, error) {
 	return editor.NewGradleEditor(result.SourceMappedProject), nil
 }
 
-// UpdateDependencyVersion 更新依赖版本（便捷方法）
+// UpdateDependencyVersion 更新依赖版本（便捷方法）.
 func UpdateDependencyVersion(filePath, group, name, newVersion string) (string, error) {
 	// 创建编辑器
 	gradleEditor, err := CreateGradleEditor(filePath)
@@ -198,7 +201,7 @@ func UpdateDependencyVersion(filePath, group, name, newVersion string) (string, 
 	return serializer.ApplyModifications(gradleEditor.GetModifications())
 }
 
-// UpdatePluginVersion 更新插件版本（便捷方法）
+// UpdatePluginVersion 更新插件版本（便捷方法）.
 func UpdatePluginVersion(filePath, pluginId, newVersion string) (string, error) {
 	// 创建编辑器
 	gradleEditor, err := CreateGradleEditor(filePath)

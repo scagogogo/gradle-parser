@@ -10,25 +10,25 @@ import (
 )
 
 var (
-	// 匹配Maven仓库URL的正则表达式
+	// 匹配Maven仓库URL的正则表达式.
 	// 例如: maven { url 'https://jitpack.io' }
 	// 或者: maven { url = uri("https://maven.aliyun.com/repository/public") }
 	mavenUrlRegex = regexp.MustCompile(`url\s*=?\s*(?:uri\()?['"](https?://[^'"]+)['"]`)
 
-	// 匹配Maven仓库名称的正则表达式
+	// 匹配Maven仓库名称的正则表达式.
 	// 例如: mavenCentral()
 	mavenNameRegex = regexp.MustCompile(`(mavenCentral|mavenLocal|jcenter|google)\(\)`)
 )
 
-// RepositoryParser 处理Gradle仓库解析
+// RepositoryParser 处理Gradle仓库解析.
 type RepositoryParser struct{}
 
-// NewRepositoryParser 创建新的仓库解析器
+// NewRepositoryParser 创建新的仓库解析器.
 func NewRepositoryParser() *RepositoryParser {
 	return &RepositoryParser{}
 }
 
-// ParseRepositoryBlock 解析仓库块
+// ParseRepositoryBlock 解析仓库块.
 func (rp *RepositoryParser) ParseRepositoryBlock(block *model.ScriptBlock) ([]*model.Repository, error) {
 	if block == nil {
 		return nil, fmt.Errorf("仓库块为空")
