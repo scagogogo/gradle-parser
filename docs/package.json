@@ -1,0 +1,26 @@
+{
+  "name": "gradle-parser-docs",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Documentation for Gradle Parser",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "lint-links": "node scripts/check-links.js",
+    "check-external-links": "find . -name '*.md' -not -path './node_modules/*' -exec npx markdown-link-check {} \\;",
+    "check-all-links": "npm run lint-links && npm run check-external-links"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0",
+    "markdown-link-check": "^3.12.2"
+  },
+  "keywords": [
+    "gradle",
+    "parser",
+    "go",
+    "documentation"
+  ],
+  "author": "Gradle Parser Contributors",
+  "license": "MIT"
+}
