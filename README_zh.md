@@ -288,8 +288,6 @@ cd examples && ./run-all-examples.sh
         </a>
         <br />
         <sub>💻 📖 🎨 🚧</sub>
-        <br />
-        <sub>27次提交</sub>
       </td>
       <td align="center" valign="top" width="14.28%">
         <a href="https://github.com/AdamKorcz">
@@ -299,8 +297,6 @@ cd examples && ./run-all-examples.sh
         </a>
         <br />
         <sub>🐛 🔧</sub>
-        <br />
-        <sub>1次提交</sub>
       </td>
     </tr>
   </tbody>

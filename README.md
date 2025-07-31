@@ -288,8 +288,6 @@ Thanks to all the amazing people who have contributed to this project! 🎉
         </a>
         <br />
         <sub>💻 📖 🎨 🚧</sub>
-        <br />
-        <sub>27 commits</sub>
       </td>
       <td align="center" valign="top" width="14.28%">
         <a href="https://github.com/AdamKorcz">
@@ -299,8 +297,6 @@ Thanks to all the amazing people who have contributed to this project! 🎉
         </a>
         <br />
         <sub>🐛 🔧</sub>
-        <br />
-        <sub>1 commit</sub>
       </td>
     </tr>
   </tbody>
