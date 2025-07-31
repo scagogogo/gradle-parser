@@ -312,8 +312,8 @@ func TestExtractDependenciesFromText(t *testing.T) {
 	}`
 
 	deps = parser.ExtractDependenciesFromText(text)
-	if len(deps) < 3 {
-		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want at least 3", len(deps))
+	if len(deps) != 3 {
+		t.Errorf("ExtractDependenciesFromText() returned %v dependencies, want 3", len(deps))
 	}
 
 	// Verify extraction of specific dependency types。
