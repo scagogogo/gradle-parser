@@ -1,0 +1,234 @@
+# golangci-lint configuration for Gradle Parser
+# See https://golangci-lint.run/usage/configuration/ for more options
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs:
+    - vendor
+    - .git
+    - docs
+  skip-files:
+    - ".*_test.go"
+  modules-download-mode: readonly
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  sort-results: true
+
+linters-settings:
+  # Cyclomatic complexity
+  cyclop:
+    max-complexity: 15
+    package-average: 10.0
+    skip-tests: true
+
+  # Duplicate code detection
+  dupl:
+    threshold: 100
+
+  # Error handling
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - io/ioutil.ReadFile
+      - io.Copy(*bytes.Buffer)
+      - io.Copy(os.Stdout)
+
+  # Function length
+  funlen:
+    lines: 100
+    statements: 50
+
+  # Cognitive complexity
+  gocognit:
+    min-complexity: 20
+
+  # Cyclomatic complexity
+  gocyclo:
+    min-complexity: 15
+
+  # Dot imports
+  goimports:
+    local-prefixes: github.com/scagogogo/gradle-parser
+
+  # Line length
+  lll:
+    line-length: 120
+
+  # Naming conventions
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+        arguments:
+          - "checkPrivateReceivers"
+          - "sayRepetitiveInsteadOfStutters"
+
+  # Unused code
+  unused:
+    check-exported: false
+
+  # Whitespace
+  wsl:
+    strict-append: true
+    allow-assign-and-call: true
+    allow-multiline-assign: true
+    allow-case-trailing-whitespace: true
+    allow-cuddle-declarations: false
+
+linters:
+  disable-all: true
+  enable:
+    # Enabled by default
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+
+    # Additional linters
+    - asciicheck      # Check for non-ASCII characters
+    - bidichk         # Check for dangerous unicode character sequences
+    - bodyclose       # Check for unclosed HTTP response bodies
+    - cyclop          # Check cyclomatic complexity
+    - dupl            # Check for duplicate code
+    - durationcheck   # Check for two durations multiplied together
+    - errname         # Check error naming conventions
+    - errorlint       # Check error wrapping
+    - exhaustive      # Check exhaustiveness of enum switch statements
+    - exportloopref   # Check for pointers to enclosing loop variables
+    - forbidigo       # Forbid specific identifiers
+    - funlen          # Check function length
+    - gochecknoinits  # Check for init functions
+    - gocognit        # Check cognitive complexity
+    - goconst         # Check for repeated strings that could be constants
+    - gocritic        # Comprehensive Go source code linter
+    - gocyclo         # Check cyclomatic complexity
+    - godot           # Check if comments end in a period
+    - gofmt           # Check if code is gofmt-ed
+    - gofumpt         # Check if code is gofumpt-ed
+    - goheader        # Check file headers
+    - goimports       # Check import formatting
+    - gomnd           # Check for magic numbers
+    - gomoddirectives # Check go.mod directives
+    - gomodguard      # Check go.mod dependencies
+    - goprintffuncname # Check printf-like function names
+    - gosec           # Security-focused linter
+    - lll             # Check line length
+    - makezero        # Check for slice declarations with non-zero initial length
+    - nakedret        # Check for naked returns
+    - nestif          # Check for deeply nested if statements
+    - nilerr          # Check for returning nil even if error is not nil
+    - nilnil          # Check for returning nil pointer and nil error
+    - noctx           # Check for sending HTTP requests without context
+    - nolintlint      # Check nolint directives
+    - prealloc        # Check for slice preallocation
+    - predeclared     # Check for predeclared identifiers
+    - revive          # Replacement for golint
+    - rowserrcheck    # Check for unchecked errors in sql.Rows
+    - sqlclosecheck   # Check for unclosed sql.DB
+    - tenv            # Check for os.Setenv usage in tests
+    - testpackage     # Check for proper test package naming
+    - tparallel       # Check for proper use of t.Parallel()
+    - unconvert       # Check for unnecessary type conversions
+    - unparam         # Check for unused function parameters
+    - wastedassign    # Check for wasted assignments
+    - whitespace      # Check for trailing whitespace
+
+  # Disabled linters (can be enabled if needed)
+  # - containedctx    # Check for struct that contains context.Context
+  # - contextcheck    # Check for function that uses context.Context
+  # - decorder        # Check declaration order
+  # - depguard        # Check for disallowed dependencies
+  # - dogsled         # Check for too many blank identifiers
+  # - errchkjson      # Check for unchecked errors in json encoding
+  # - execinquery     # Check for exec queries
+  # - exhaustivestruct # Check for exhaustive struct initialization
+  # - forcetypeassert # Check for forced type assertions
+  # - gci             # Check import order
+  # - ginkgolinter    # Check Ginkgo tests
+  # - godox           # Check for TODO/FIXME/etc comments
+  # - goerr113        # Check error definitions
+  # - grouper         # Check for grouped declarations
+  # - importas        # Check for import aliases
+  # - interfacer      # Suggest interface usage (deprecated)
+  # - ireturn         # Check for interface returns
+  # - maintidx        # Check maintainability index
+  # - misspell        # Check for misspelled words
+  # - nlreturn        # Check for newlines before return
+  # - nosprintfhostport # Check for sprintf with host:port
+  # - paralleltest    # Check for proper use of t.Parallel()
+  # - promlinter      # Check Prometheus metrics
+  # - stylecheck      # Replacement for golint (stricter)
+  # - tagliatelle     # Check struct tag naming
+  # - testableexamples # Check for testable examples
+  # - varnamelen      # Check variable name length
+  # - wrapcheck       # Check for error wrapping
+
+issues:
+  # List of regexps of issue texts to exclude
+  exclude:
+    # Exclude some staticcheck messages
+    - "SA9003:"
+    - "ST1000:"
+    - "ST1003:"
+    - "ST1016:"
+    - "ST1020:"
+    - "ST1021:"
+    - "ST1022:"
+
+  # Exclude issues in test files
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+        - goconst
+        - funlen
+        - dupl
+        - lll
+
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      text: "should not use dot imports"
+
+    # Exclude magic number checks in examples
+    - path: examples/
+      linters:
+        - gomnd
+
+    # Exclude line length checks in generated files
+    - path: ".*\\.pb\\.go"
+      linters:
+        - lll
+
+  # Show only new issues
+  new: false
+
+  # Maximum issues count per one linter
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text
+  max-same-issues: 0
+
+  # Show only new issues created after git revision
+  # new-from-rev: HEAD
+
+severity:
+  default-severity: error
+  case-sensitive: false
+  rules:
+    - linters:
+        - dupl
+      severity: info
+    - linters:
+        - goconst
+      severity: info
