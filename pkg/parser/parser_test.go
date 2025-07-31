@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/scagogogo/gradle-parser/pkg/model"
 )
@@ -251,6 +252,357 @@ func TestParseWithErrors(t *testing.T) {
 	// The result should contain the project
 	if result.Project == nil {
 		t.Error("Parse() with errors returned nil project")
+	}
+}
+
+// 测试边界条件和错误处理
+func TestParserEdgeCases(t *testing.T) {
+	parser := NewParser()
+
+	t.Run("Empty content", func(t *testing.T) {
+		result, err := parser.Parse("")
+		if err != nil {
+			t.Fatalf("Parse() with empty content error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with empty content returned nil result")
+		}
+		if result.Project == nil {
+			t.Fatal("Parse() with empty content returned nil project")
+		}
+	})
+
+	t.Run("Only whitespace", func(t *testing.T) {
+		result, err := parser.Parse("   \n\t\n   ")
+		if err != nil {
+			t.Fatalf("Parse() with whitespace error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with whitespace returned nil result")
+		}
+	})
+
+	t.Run("Only comments", func(t *testing.T) {
+		content := `
+		// This is a comment
+		/* This is a block comment */
+		// Another comment
+		`
+		result, err := parser.Parse(content)
+		if err != nil {
+			t.Fatalf("Parse() with comments error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with comments returned nil result")
+		}
+	})
+
+	t.Run("Very long lines", func(t *testing.T) {
+		longValue := strings.Repeat("a", 10000)
+		content := fmt.Sprintf("group = '%s'", longValue)
+		result, err := parser.Parse(content)
+		if err != nil {
+			t.Fatalf("Parse() with long line error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with long line returned nil result")
+		}
+	})
+
+	t.Run("Special characters", func(t *testing.T) {
+		content := `
+		group = 'com.example.测试'
+		version = '1.0.0-SNAPSHOT'
+		description = 'Test with émojis 🚀 and unicode ñ'
+		`
+		result, err := parser.Parse(content)
+		if err != nil {
+			t.Fatalf("Parse() with special chars error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with special chars returned nil result")
+		}
+	})
+
+	t.Run("Malformed syntax", func(t *testing.T) {
+		content := `
+		group = 'com.example
+		version = 1.0.0'
+		description = "unclosed quote
+		`
+		result, err := parser.Parse(content)
+		// Should not fail, but may have warnings
+		if err != nil {
+			t.Fatalf("Parse() with malformed syntax error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("Parse() with malformed syntax returned nil result")
+		}
+		// Check if warnings were generated
+		if len(result.Warnings) == 0 {
+			t.Log("No warnings generated for malformed syntax")
+		}
+	})
+}
+
+// 测试文件解析的边界条件
+func TestParseFileEdgeCases(t *testing.T) {
+	parser := NewParser()
+
+	t.Run("Non-existent file", func(t *testing.T) {
+		_, err := parser.ParseFile("non-existent-file.gradle")
+		if err == nil {
+			t.Error("ParseFile() should return error for non-existent file")
+		}
+	})
+
+	t.Run("Directory instead of file", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		_, err := parser.ParseFile(tmpDir)
+		if err == nil {
+			t.Error("ParseFile() should return error for directory")
+		}
+	})
+
+	t.Run("Empty file", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		emptyFile := filepath.Join(tmpDir, "empty.gradle")
+		err := os.WriteFile(emptyFile, []byte(""), 0644)
+		if err != nil {
+			t.Fatalf("Failed to create empty file: %v", err)
+		}
+
+		result, err := parser.ParseFile(emptyFile)
+		if err != nil {
+			t.Fatalf("ParseFile() with empty file error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("ParseFile() with empty file returned nil result")
+		}
+	})
+
+	t.Run("Large file", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		largeFile := filepath.Join(tmpDir, "large.gradle")
+
+		// Create a large file with many dependencies
+		var content strings.Builder
+		content.WriteString("dependencies {\n")
+		for i := 0; i < 1000; i++ {
+			content.WriteString(fmt.Sprintf("    implementation 'com.example:lib%d:1.0.0'\n", i))
+		}
+		content.WriteString("}\n")
+
+		err := os.WriteFile(largeFile, []byte(content.String()), 0644)
+		if err != nil {
+			t.Fatalf("Failed to create large file: %v", err)
+		}
+
+		result, err := parser.ParseFile(largeFile)
+		if err != nil {
+			t.Fatalf("ParseFile() with large file error = %v", err)
+		}
+		if result == nil {
+			t.Fatal("ParseFile() with large file returned nil result")
+		}
+	})
+
+	t.Run("File with permission issues", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		restrictedFile := filepath.Join(tmpDir, "restricted.gradle")
+
+		err := os.WriteFile(restrictedFile, []byte("group = 'test'"), 0644)
+		if err != nil {
+			t.Fatalf("Failed to create restricted file: %v", err)
+		}
+
+		// Change permissions to make file unreadable
+		err = os.Chmod(restrictedFile, 0000)
+		if err != nil {
+			t.Fatalf("Failed to change file permissions: %v", err)
+		}
+
+		// Restore permissions after test
+		defer func() {
+			os.Chmod(restrictedFile, 0644)
+		}()
+
+		_, err = parser.ParseFile(restrictedFile)
+		if err == nil {
+			t.Error("ParseFile() should return error for unreadable file")
+		}
+	})
+}
+
+// 测试解析器配置的边界条件
+func TestParserConfigurationEdgeCases(t *testing.T) {
+	t.Run("All options disabled", func(t *testing.T) {
+		parser := &GradleParser{}
+		parser = parser.WithSkipComments(true).
+			WithCollectRawContent(false).
+			WithParsePlugins(false).
+			WithParseDependencies(false).
+			WithParseRepositories(false).
+			WithParseTasks(false)
+
+		content := `
+		plugins {
+		    id 'java'
+		    id 'org.springframework.boot' version '2.7.0'
+		}
+
+		dependencies {
+		    implementation 'org.springframework.boot:spring-boot-starter-web'
+		}
+
+		repositories {
+		    mavenCentral()
+		}
+		`
+
+		result, err := parser.Parse(content)
+		if err != nil {
+			t.Fatalf("Parse() with disabled options error = %v", err)
+		}
+
+		// Should have empty collections since parsing is disabled
+		if len(result.Project.Plugins) > 0 {
+			t.Error("Should have no plugins when plugin parsing is disabled")
+		}
+		if len(result.Project.Dependencies) > 0 {
+			t.Error("Should have no dependencies when dependency parsing is disabled")
+		}
+		if len(result.Project.Repositories) > 0 {
+			t.Error("Should have no repositories when repository parsing is disabled")
+		}
+		if result.RawText != "" {
+			t.Error("Should have empty RawText when collectRawContent is disabled")
+		}
+	})
+
+	t.Run("Chained configuration", func(t *testing.T) {
+		parser := &GradleParser{}
+
+		// Test method chaining
+		configuredParser := parser.
+			WithSkipComments(false).
+			WithCollectRawContent(true).
+			WithParsePlugins(true).
+			WithParseDependencies(true).
+			WithParseRepositories(true).
+			WithParseTasks(true)
+
+		if configuredParser != parser {
+			t.Error("Configuration methods should return the same parser instance")
+		}
+
+		// Verify all options are set correctly
+		if parser.skipComments != false {
+			t.Error("skipComments should be false")
+		}
+		if parser.collectRawContent != true {
+			t.Error("collectRawContent should be true")
+		}
+		if parser.parsePlugins != true {
+			t.Error("parsePlugins should be true")
+		}
+		if parser.parseDependencies != true {
+			t.Error("parseDependencies should be true")
+		}
+		if parser.parseRepositories != true {
+			t.Error("parseRepositories should be true")
+		}
+		if parser.parseTasks != true {
+			t.Error("parseTasks should be true")
+		}
+	})
+}
+
+// 性能测试
+func TestParserPerformance(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping performance test in short mode")
+	}
+
+	parser := NewParser()
+
+	// 创建一个复杂的Gradle文件内容
+	var content strings.Builder
+	content.WriteString(`
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+}
+
+group = 'com.example'
+version = '1.0.0'
+description = 'Performance test project'
+
+repositories {
+    mavenCentral()
+    google()
+    gradlePluginPortal()
+}
+
+dependencies {
+`)
+
+	// 添加大量依赖
+	for i := 0; i < 500; i++ {
+		content.WriteString(fmt.Sprintf("    implementation 'com.example:library%d:1.%d.0'\n", i, i%10))
+		content.WriteString(fmt.Sprintf("    testImplementation 'com.test:test-library%d:2.%d.0'\n", i, i%5))
+	}
+
+	content.WriteString("}\n")
+
+	// 添加大量任务
+	for i := 0; i < 100; i++ {
+		content.WriteString(fmt.Sprintf(`
+task customTask%d {
+    group = 'custom'
+    description = 'Custom task %d'
+    doLast {
+        println 'Executing custom task %d'
+    }
+}
+`, i, i, i))
+	}
+
+	testContent := content.String()
+
+	// 测试解析时间
+	startTime := time.Now()
+	result, err := parser.Parse(testContent)
+	parseTime := time.Since(startTime)
+
+	if err != nil {
+		t.Fatalf("Performance test parse error: %v", err)
+	}
+
+	if result == nil {
+		t.Fatal("Performance test returned nil result")
+	}
+
+	// 验证解析结果
+	if len(result.Project.Dependencies) == 0 {
+		t.Error("Performance test should have parsed dependencies")
+	}
+
+	if len(result.Project.Plugins) == 0 {
+		t.Error("Performance test should have parsed plugins")
+	}
+
+	// 记录性能指标
+	t.Logf("Parsed %d characters in %v", len(testContent), parseTime)
+	t.Logf("Found %d dependencies, %d plugins, %d repositories",
+		len(result.Project.Dependencies),
+		len(result.Project.Plugins),
+		len(result.Project.Repositories))
+
+	// 性能阈值检查（可根据需要调整）
+	if parseTime > time.Second*5 {
+		t.Errorf("Parse time %v exceeds threshold of 5 seconds", parseTime)
 	}
 }
 
