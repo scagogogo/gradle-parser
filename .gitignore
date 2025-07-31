@@ -1,0 +1,318 @@
+# Gradle Parser .gitignore
+# Generated for Go project with documentation and testing
+
+# =============================================================================
+# Go specific
+# =============================================================================
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+coverage.html
+coverage.txt
+coverage.xml
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go module download cache
+go.sum.backup
+
+# =============================================================================
+# Testing and Benchmarking
+# =============================================================================
+
+# Test coverage reports
+test/coverage.out
+test/coverage.html
+test/coverage.txt
+test/coverage.xml
+
+# Benchmark results
+benchmark.out
+benchmark.txt
+*.bench
+
+# Test artifacts
+test/artifacts/
+test/tmp/
+test/temp/
+testdata/output/
+testdata/tmp/
+
+# Memory and CPU profiles
+*.prof
+*.pprof
+mem.prof
+cpu.prof
+profile.out
+
+# =============================================================================
+# Documentation and Build Artifacts
+# =============================================================================
+
+# VitePress build output
+docs/dist/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/.temp/
+
+# Documentation build artifacts
+dist/
+build/
+out/
+
+# Node.js dependencies (for documentation)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+.pnp.*
+
+# Package lock files (keep package-lock.json but ignore others)
+yarn.lock
+.pnpm-lock.yaml
+
+# =============================================================================
+# IDE and Editor Files
+# =============================================================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA / GoLand
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# =============================================================================
+# Operating System Files
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# Temporary and Log Files
+# =============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+*.new
+
+# Log files
+*.log
+logs/
+log/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+
+# Example build artifacts
+examples/*/build/
+examples/*/*.exe
+examples/*/*.test
+examples/*/coverage.out
+
+# Release artifacts
+releases/
+artifacts/
+
+# Local configuration files
+.env
+.env.local
+.env.*.local
+config.local.*
+
+# Development tool configurations
+.air.toml
+.air.conf
+Makefile.local
+docker-compose.override.yml
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache/
+cache/
+
+# =============================================================================
+# CI/CD and Deployment
+# =============================================================================
+
+# GitHub Actions artifacts
+.github/artifacts/
+
+# Docker
+.dockerignore.bak
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# =============================================================================
+# Security and Secrets
+# =============================================================================
+
+# API keys and secrets
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Certificate files
+*.crt
+*.cer
+*.der
+
+# SSH keys
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+
+# Compressed files
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Image files (if not part of documentation)
+# *.jpg
+# *.jpeg
+# *.png
+# *.gif
+# *.bmp
+# *.svg
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.wmv
+
+# Archive files
+*.tar
+*.gz
+*.bz2
+*.xz
+
+# =============================================================================
+# Keep Important Files
+# =============================================================================
+
+# Force include important files that might be ignored by patterns above
+!.gitkeep
+!.gitignore
+!.github/
+!docs/package.json
+!docs/package-lock.json
+
+# Keep example Gradle files
+!examples/*/build.gradle
+!examples/*/settings.gradle
+!examples/sample_files/
+
+# Keep documentation assets
+!docs/public/
+!docs/.vitepress/config.js
+!docs/.vitepress/config.ts
