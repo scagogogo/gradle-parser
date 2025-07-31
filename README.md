@@ -273,6 +273,48 @@ This project uses GitHub Actions for comprehensive quality assurance:
 - 📈 Performance benchmarking
 - 📝 Documentation link validation
 
+## 👥 Contributors
+
+Thanks to all the amazing people who have contributed to this project! 🎉
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/CC11001100">
+          <img src="https://avatars.githubusercontent.com/u/12819457?v=4" width="100px;" alt="CC11001100"/>
+          <br />
+          <sub><b>CC11001100</b></sub>
+        </a>
+        <br />
+        <sub>💻 📖 🎨 🚧</sub>
+        <br />
+        <sub>27 commits</sub>
+      </td>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/AdamKorcz">
+          <img src="https://avatars.githubusercontent.com/u/44787359?v=4" width="100px;" alt="AdamKorcz"/>
+          <br />
+          <sub><b>Adam Korczynski</b></sub>
+        </a>
+        <br />
+        <sub>🐛 🔧</sub>
+        <br />
+        <sub>1 commit</sub>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### 🏆 Contribution Types
+
+- 💻 Code
+- 📖 Documentation
+- 🎨 Design
+- 🚧 Maintenance
+- 🐛 Bug fixes
+- 🔧 Tools
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see the [Contributing Guide](CONTRIBUTING.md) for details.

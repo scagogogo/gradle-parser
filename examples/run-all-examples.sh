@@ -33,13 +33,43 @@ run_example() {
     fi
     
     cd "$dir"
-    
-    # Run the example with timeout
-    timeout 30s go run main.go
-    local exit_code=$?
-    
+
+    # Run the example with timeout (cross-platform compatible)
+    if command -v timeout &> /dev/null; then
+        # Linux/GNU timeout
+        timeout 30s go run main.go
+        local exit_code=$?
+    elif command -v gtimeout &> /dev/null; then
+        # macOS with GNU coreutils (brew install coreutils)
+        gtimeout 30s go run main.go
+        local exit_code=$?
+    else
+        # Fallback: run without timeout on macOS
+        go run main.go &
+        local pid=$!
+        local timeout=30
+        local elapsed=0
+
+        while [ $elapsed -lt $timeout ]; do
+            if ! kill -0 $pid 2>/dev/null; then
+                wait $pid
+                local exit_code=$?
+                break
+            fi
+            sleep 1
+            elapsed=$((elapsed + 1))
+        done
+
+        # If still running after timeout, kill it
+        if kill -0 $pid 2>/dev/null; then
+            kill $pid 2>/dev/null
+            wait $pid 2>/dev/null
+            local exit_code=124  # timeout exit code
+        fi
+    fi
+
     cd ..
-    
+
     if [ $exit_code -eq 0 ]; then
         echo -e "${GREEN}✅ $name completed successfully${NC}"
         return 0

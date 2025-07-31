@@ -14,7 +14,6 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       tag_name: ${{ steps.get_version.outputs.tag_name }}
     steps:
       - name: Checkout code
@@ -46,31 +45,31 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.tag_name }}
-          release_name: Release ${{ steps.get_version.outputs.tag_name }}
+          name: Release ${{ steps.get_version.outputs.tag_name }}
           body: |
             ## Changes in ${{ steps.get_version.outputs.tag_name }}
-            
+
             ${{ steps.changelog.outputs.changelog }}
-            
+
             ## Installation
-            
+
             ```bash
             go get github.com/scagogogo/gradle-parser@${{ steps.get_version.outputs.tag_name }}
             ```
-            
+
             ## Documentation
-            
+
             - [API Documentation](https://scagogogo.github.io/gradle-parser/api/)
             - [User Guide](https://scagogogo.github.io/gradle-parser/guide/)
             - [Examples](https://github.com/scagogogo/gradle-parser/tree/${{ steps.get_version.outputs.tag_name }}/examples)
-            
+
             ## Checksums
-            
+
             See the assets below for checksums of the release artifacts.
           draft: false
           prerelease: ${{ contains(steps.get_version.outputs.tag_name, '-') }}
@@ -109,17 +108,17 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           mkdir -p dist
-          
+
           # Build each example
           for example in examples/*/; do
             if [ -f "$example/main.go" ]; then
               example_name=$(basename "$example")
               output_name="gradle-parser-${example_name}-${{ matrix.goos }}-${{ matrix.goarch }}"
-              
+
               if [ "${{ matrix.goos }}" = "windows" ]; then
                 output_name="${output_name}.exe"
               fi
-              
+
               echo "Building $example_name for ${{ matrix.goos }}/${{ matrix.goarch }}"
               cd "$example"
               go build -ldflags="-s -w" -o "../dist/$output_name" .
@@ -132,44 +131,45 @@ jobs:
           cd dist
           if [ "${{ matrix.goos }}" = "windows" ]; then
             zip -r "gradle-parser-examples-${{ matrix.goos }}-${{ matrix.goarch }}.zip" .
-            echo "ASSET_NAME=gradle-parser-examples-${{ matrix.goos }}-${{ matrix.goarch }}.zip" >> $GITHUB_ENV
           else
             tar -czf "gradle-parser-examples-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" .
-            echo "ASSET_NAME=gradle-parser-examples-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz" >> $GITHUB_ENV
           fi
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./dist/${{ env.ASSET_NAME }}
-          asset_name: ${{ env.ASSET_NAME }}
-          asset_content_type: application/octet-stream
+          name: release-assets-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*
 
-  # Generate and upload checksums
-  checksums:
-    name: Generate Checksums
+  # Upload all assets to release
+  upload-assets:
+    name: Upload Release Assets
     runs-on: ubuntu-latest
     needs: [release, build-assets]
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-      - name: Generate checksums
+      - name: Prepare release assets
         run: |
-          find . -name "*.tar.gz" -o -name "*.zip" | xargs sha256sum > checksums.txt
+          mkdir -p release-assets
+          find artifacts -name "*.tar.gz" -o -name "*.zip" | while read file; do
+            cp "$file" release-assets/
+          done
 
-      - name: Upload checksums
-        uses: actions/upload-release-asset@v1
+          # Generate checksums
+          cd release-assets
+          sha256sum * > checksums.txt
+
+      - name: Upload all assets to release
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./checksums.txt
-          asset_name: checksums.txt
-          asset_content_type: text/plain
+          tag_name: ${{ needs.release.outputs.tag_name }}
+          files: release-assets/*
 
   # Update documentation
   update-docs:
@@ -208,7 +208,7 @@ jobs:
   notify:
     name: Notify Release
     runs-on: ubuntu-latest
-    needs: [release, build-assets, checksums, update-docs]
+    needs: [release, build-assets, upload-assets, update-docs]
     if: always()
     steps:
       - name: Release Summary
